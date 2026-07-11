@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Omar Alvi — Full Stack Engineer</title>
+  <meta name="description" content="Portfolio of Omar Alvi, a Full Stack Engineer crafting scalable architectures and seamless user experiences.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+  
+  <script type="module" crossorigin src="/assets/index-q5jKP1fc.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DA3P_eG1.css">
+</head>
+<body>
+  <!-- Outer Page Wrapper (Dark Backdrop) -->
+  <div class="page-container">
+    
+    <!-- Hero Main Card -->
+    <main class="hero-card" id="heroCard">
+      
+      <!-- Video Background Container -->
+      <div class="video-bg-container">
+        <!-- Dark mode video -->
+        <video id="bgVideoDark" class="bg-video active" autoplay loop muted playsinline>
+          <source src="/assets/dark_cropped-BEHjv-E1.webm" type="video/webm">
+          <source src="/assets/dark_web-CYgtaTvf.mp4" type="video/mp4">
+        </video>
+        <!-- Light mode video -->
+        <video id="bgVideoLight" class="bg-video" autoplay loop muted playsinline>
+          <source src="/assets/light_cropped-C9BcnLez.webm" type="video/webm">
+          <source src="/assets/light_web-CKUn0-pu.mp4" type="video/mp4">
+        </video>
+        <!-- Overlay for contrast and color depth -->
+        <div class="video-overlay"></div>
+      </div>
+      
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div class="logo">OA</div>
+        
+        <nav class="nav-links">
+          <a href="#about" class="nav-link">ABOUT</a>
+          <a href="#projects" class="nav-link">PROJECTS</a>
+          <a href="#writing" class="nav-link">WRITING</a>
+          <a href="#contact" class="nav-link">CONTACT</a>
+        </nav>
+        
+        <!-- Theme Toggle Button -->
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle light/dark theme">
+          <span class="toggle-icon"></span>
+        </button>
+      </aside>
+      
+      <!-- Hero Content -->
+      <section class="hero-content">
+        
+        <!-- Main Headline -->
+        <h1 class="hero-headline">
+          <span class="headline-line">LOGIC &</span>
+          <span class="headline-line">ARCHITECTURE.</span>
+          <span class="headline-line">THE PORTFOLIO</span>
+          <span class="headline-line">OF OMAR ALVI.</span>
+        </h1>
+        
+        <!-- Bottom Row: Subtitle & Code Block -->
+        <div class="hero-bottom-grid">
+          <!-- Description and CTA -->
+          <div class="hero-intro">
+            <p class="hero-description">
+              Architecting scalable backend systems and crafting high-performance, intuitive user interfaces.
+            </p>
+            <a href="#projects" class="cta-button">
+              VIEW PROJECTS
+            </a>
+          </div>
+          
+          <!-- Interactive Code Panel -->
+          <div class="code-panel" id="codePanel">
+            <div class="code-header">
+              <span class="code-dot red"></span>
+              <span class="code-dot yellow"></span>
+              <span class="code-dot green"></span>
+              <span class="code-file">system.ts</span>
+            </div>
+            <pre class="code-block"><code><span class="code-keyword">const</span> <span class="code-function">buildStack</span> = <span class="code-keyword">async</span> &lt;<span class="code-type">T</span>&gt;(
+  logic: <span class="code-type">Backend</span>,
+  view: <span class="code-type">Frontend</span>&lt;<span class="code-type">T</span>&gt;
+): <span class="code-type">Promise</span>&lt;<span class="code-type">System</span>&lt;<span class="code-type">T</span>&gt;&gt; => {
+  <span class="code-keyword">const</span> db = <span class="code-keyword">await</span> <span class="code-type">Database</span>.<span class="code-function">connect</span>(process.env.DB_URL);
+  <span class="code-keyword">return</span> <span class="code-type">System</span>.<span class="code-function">integrate</span>({ logic, view, db }).<span class="code-function">optimize</span>();
+};</code></pre>
+          </div>
+        </div>
+        
+      </section>
+      
+    </main>
+    
+  </div>
+
+  <!-- Vite script entry -->
+</body>
+</html>
