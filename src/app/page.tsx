@@ -1,14 +1,17 @@
 "use client";
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useLenis } from 'lenis/react';
+import ProjectsShowcase from "@/components/ProjectsShowcase";
 import styles from './page.module.css';
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(useGSAP, ScrambleTextPlugin);
+  gsap.registerPlugin(useGSAP, ScrambleTextPlugin, ScrollTrigger);
 }
 
 const rotatingPhrases = [
@@ -21,17 +24,38 @@ const rotatingPhrases = [
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const lenis = useLenis();
+
+  // Control scrolling with Lenis during the cinematic boot phase
+  useEffect(() => {
+    if (lenis) {
+      if (!isLoaded) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    }
+  }, [lenis, isLoaded]);
   
   useGSAP((context, contextSafe) => {
     // Performance optimizations
-    gsap.defaults({ force3D: true, lazy: false });
+    gsap.config({ force3D: true });
+
+    const skipIntro = true; // Set to false to re-enable intro sequence
+
+    // Lock scroll during boot phase
+    if (!skipIntro) {
+      document.body.style.overflow = "hidden";
+    }
 
     // ================================================================
     // 1. CINEMATIC BOOT-UP ENTRY SEQUENCE
     // ================================================================
 
     // Initial states: everything hidden
-    gsap.set(".gsap-video-bg", { autoAlpha: 0, scale: 1.05 });
+    gsap.set(".gsap-video-bg", { autoAlpha: 0, scale: 1.08 });
     gsap.set(".gsap-main-hero", { opacity: 0 });
     gsap.set(".gsap-main-elem", { autoAlpha: 0, y: 30 });
     gsap.set(".gsap-title-decode", { autoAlpha: 0 });
@@ -40,7 +64,13 @@ export default function Home() {
     gsap.set(".gsap-subtitle", { autoAlpha: 0, y: 20 });
     gsap.set(".gsap-intro-1, .gsap-intro-2, .gsap-intro-3", { x: -20, opacity: 0 });
 
-    const entryTl = gsap.timeline({ delay: 0.3 });
+    const entryTl = gsap.timeline({ 
+      delay: skipIntro ? 0 : 0.3,
+      onComplete: () => {
+        document.body.style.overflow = "";
+        setIsLoaded(true);
+      }
+    });
 
     // Act 1: Cinematic Text Intro
     entryTl.addLabel("intro", 0)
@@ -100,6 +130,10 @@ export default function Home() {
         ease: "back.out(1.7)"
       }, "cta");
 
+    if (skipIntro) {
+      entryTl.progress(1);
+    }
+
     // ================================================================
     // 2. ROTATING TEXT (runs independently, cycles in background)
     // ================================================================
@@ -135,10 +169,34 @@ export default function Home() {
       });
     });
 
+  }, { scope: containerRef }); // END OF BOOT PHASE HOOK
+
+  useGSAP((context, contextSafe) => {
+    if (!isLoaded) return;
+
     // ================================================================
     // 3. MAGNETIC HOVER & GLOBAL PARALLAX FOR NAV ITEMS
     // ================================================================
     const navItems = gsap.utils.toArray(".gsap-nav-item") as HTMLElement[];
+
+    // ================================================================
+    // 3.5 AMBIENT SIDEBAR SWEEP
+    // ================================================================
+    // Sweeps a slanted orange band from CONTACT (bottom) to ABOUT (top)
+    gsap.fromTo(".gsap-nav-sweep",
+      { clipPath: "polygon(0% -60%, 100% -40%, 100% -20%, 0% -40%)" },
+      {
+        clipPath: "polygon(0% 140%, 100% 160%, 100% 180%, 0% 160%)",
+        duration: 1.2,
+        ease: "none",
+        stagger: {
+          each: 1.7,
+          from: "end" // Starts from the last element in the DOM
+        },
+        repeat: -1,
+        repeatDelay: 2
+      }
+    );
 
     const itemTrackers = navItems.map(item => {
       const hoverTl = gsap.timeline({ paused: true, defaults: { ease: "none" } });
@@ -190,23 +248,20 @@ export default function Home() {
 
     if (isHoverDevice && cursorDot) {
       gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
-      dotXTo = gsap.quickTo(cursorDot, "x", { duration: 0.15, ease: "power3" });
-      dotYTo = gsap.quickTo(cursorDot, "y", { duration: 0.15, ease: "power3" });
+      dotXTo = gsap.quickTo(cursorDot, "x", { duration: 0.05, ease: "power3" });
+      dotYTo = gsap.quickTo(cursorDot, "y", { duration: 0.05, ease: "power3" });
 
       // Reveal cursor elements
       gsap.set(cursorDot, { autoAlpha: 1 });
 
       // Hide default cursor
-      document.body.style.cursor = "none";
-      if (containerRef.current) containerRef.current.style.cursor = "none";
+      document.body.classList.add("hide-default-cursor");
     }
 
     // ================================================================
     // GLOBAL MOUSE MOVE — drives nav parallax, video parallax, cursor
     // ================================================================
     const onGlobalMouseMove = contextSafe!((e: MouseEvent) => {
-      if (!containerRef.current) return;
-
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
 
@@ -223,8 +278,8 @@ export default function Home() {
 
       // Video parallax (inverse direction for depth)
       if (videoXTo && videoYTo) {
-        videoXTo(-globalNx * 15);
-        videoYTo(-globalNy * 15);
+        videoXTo(-globalNx * 30);
+        videoYTo(-globalNy * 30);
       }
 
       // Custom cursor tracking
@@ -276,8 +331,8 @@ export default function Home() {
       }
     });
 
-    if (containerRef.current) {
-      containerRef.current.addEventListener("mousemove", onGlobalMouseMove as EventListener);
+    if (typeof window !== "undefined") {
+      window.addEventListener("mousemove", onGlobalMouseMove as EventListener);
     }
 
     navItems.forEach((item) => {
@@ -340,8 +395,111 @@ export default function Home() {
       ctaCleanup = () => {
         ctaBtn.removeEventListener("mouseenter", onCtaEnter);
         ctaBtn.removeEventListener("mouseleave", onCtaLeave);
+        ctaTl.kill();
       };
     }
+
+    // ================================================================
+    // 6. PHILOSOPHY SCROLL SEQUENCE
+    // ================================================================
+      
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".gsap-scrub-spacer",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
+        }
+      });
+
+      // Act 1: Fade out hero content (0% - 15%)
+      scrollTl.addLabel("act1", 0)
+        .fromTo(".gsap-main-elem, .gsap-title-decode, .gsap-rotating-container, .gsap-subtitle, .gsap-cta", 
+        { autoAlpha: 1, y: 0 },
+        {
+          autoAlpha: 0,
+          y: -30,
+          duration: 0.15,
+          stagger: 0.02,
+          ease: "power2.inOut",
+          immediateRender: false
+        }, "act1");
+
+      // Act 2: Video Collapse into Void (15% - 30%)
+      scrollTl.addLabel("act2", 0.15)
+        .fromTo(".gsap-video-bg", 
+        { scale: 1.05, borderRadius: "0%", autoAlpha: 1 },
+        {
+          scale: 0,
+          borderRadius: "50%",
+          duration: 0.15,
+          ease: "power2.inOut",
+          immediateRender: false
+        }, "act2")
+        .to(".gsap-video-bg", {
+          autoAlpha: 0,
+          duration: 0.05,
+          ease: "power2.in"
+        }, "act2+=0.10");
+
+      // Act 3: Typography Bespoke Flythrough (30% - 90%)
+      
+      // Phrase 1: Marquee across the screen (30% to 45%)
+      gsap.set(".gsap-phrase-1", { xPercent: 150, autoAlpha: 0 });
+      
+      // Quick fade in right before it slides into view
+      scrollTl.to(".gsap-phrase-1", { autoAlpha: 1, duration: 0.01 }, 0.29);
+      
+      scrollTl.fromTo(".gsap-phrase-1",
+        { xPercent: 150 },
+        { xPercent: -150, duration: 0.15, ease: "none", immediateRender: false },
+        0.30
+      );
+
+      // Quick fade out after it leaves
+      scrollTl.to(".gsap-phrase-1", { autoAlpha: 0, duration: 0.01 }, 0.45);
+
+      // Phrase 2: Sleek fade up with letter spacing (43% to 55%)
+      gsap.set(".gsap-phrase-2", { y: 50, autoAlpha: 0, letterSpacing: "0em" });
+      scrollTl.fromTo(".gsap-phrase-2",
+        { y: 50, autoAlpha: 0, letterSpacing: "0em" },
+        { y: -20, autoAlpha: 1, letterSpacing: "0.15em", duration: 0.08, ease: "power2.out", immediateRender: false },
+        0.43
+      ).to(".gsap-phrase-2", {
+        y: -50, autoAlpha: 0, duration: 0.04, ease: "power2.in"
+      }, 0.51);
+
+      // Phrase 3: Clip-path reveal from left (53% to 65%)
+      gsap.set(".gsap-phrase-3", { clipPath: "inset(0 100% 0 0)", autoAlpha: 1, x: -30 });
+      scrollTl.fromTo(".gsap-phrase-3",
+        { clipPath: "inset(0 100% 0 0)", x: -30 },
+        { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.08, ease: "power3.inOut", immediateRender: false },
+        0.53
+      ).to(".gsap-phrase-3", {
+        autoAlpha: 0, x: 30, duration: 0.04, ease: "power2.in"
+      }, 0.61);
+
+      // Phrase 4: Blur focus pull (63% to 75%)
+      gsap.set(".gsap-phrase-4", { filter: "blur(20px)", autoAlpha: 0, scale: 1.2 });
+      scrollTl.fromTo(".gsap-phrase-4",
+        { filter: "blur(20px)", autoAlpha: 0, scale: 1.2 },
+        { filter: "blur(0px)", autoAlpha: 1, scale: 1, duration: 0.08, ease: "power2.out", immediateRender: false },
+        0.63
+      ).to(".gsap-phrase-4", {
+        filter: "blur(20px)", autoAlpha: 0, scale: 0.8, duration: 0.04, ease: "power2.in"
+      }, 0.71);
+
+      // Phrase 5: Slam into center and hold (75% to 90%)
+      gsap.set(".gsap-phrase-5", { scale: 0.1, autoAlpha: 0 });
+      scrollTl.fromTo(".gsap-phrase-5",
+        { scale: 0.1, autoAlpha: 0 },
+        { scale: 1, autoAlpha: 1, duration: 0.05, ease: "power2.out", immediateRender: false },
+        0.75
+      ).to(".gsap-phrase-5", {
+        scale: 1.05, duration: 0.10, ease: "none"
+      }, 0.80);
+
+
 
     // ================================================================
     // 7. AMBIENT SUBTITLE GLITCH
@@ -363,19 +521,33 @@ export default function Home() {
     };
 
     const scheduleNextGlitch = () => {
-      const delay = gsap.utils.random(5, 8);
+      const delay = gsap.utils.random(2, 4);
       glitchCall = gsap.delayedCall(delay, triggerGlitch);
     };
 
-    // Start the ambient glitch loop after entry sequence finishes
-    entryTl.call(scheduleNextGlitch);
+    // Start the ambient glitch loop immediately (since entry sequence is finished)
+    scheduleNextGlitch();
+
+    // ================================================================
+    // 8. GLOBAL SCROLL PROGRESS BAR
+    // ================================================================
+    gsap.to(".gsap-scroll-progress", {
+      scaleY: 1,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".gsap-page-wrapper", // Needs a class on the wrapper
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.1
+      }
+    });
 
     // ================================================================
     // CLEANUP
     // ================================================================
     return () => {
-      if (containerRef.current) {
-        containerRef.current.removeEventListener("mousemove", onGlobalMouseMove as EventListener);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("mousemove", onGlobalMouseMove as EventListener);
       }
       navItems.forEach((item) => {
         item.removeEventListener("mouseenter", onEnter as EventListener);
@@ -384,15 +556,16 @@ export default function Home() {
       });
       if (ctaCleanup) ctaCleanup();
       if (glitchCall) glitchCall.kill();
-      document.body.style.cursor = "";
+      document.body.classList.remove("hide-default-cursor");
     };
 
-  }, { scope: containerRef });
+  }, { scope: wrapperRef, dependencies: [isLoaded] });
 
   return (
-    <main className={styles.main} ref={containerRef}>
-      
-      {/* Background Video */}
+    <div className={`${styles.pageWrapper} gsap-page-wrapper`} ref={wrapperRef}>
+      <main className={styles.main} ref={containerRef}>
+        
+        {/* Background Video */}
       <video 
         className={`${styles.videoBackground} gsap-video-bg`}
         autoPlay 
@@ -421,13 +594,38 @@ export default function Home() {
           <aside className={`${styles.sidebar} gsap-main-elem`}>
             <div className={styles.logo}>OG</div>
             <nav className={styles.nav}>
-              {["ABOUT", "PROJECTS", "WRITING", "CONTACT"].map((item) => (
+              {[
+                { name: "HOME", target: ".gsap-main-hero" },
+                { name: "ABOUT", target: "#about" },
+                { name: "CONTACT", target: "#contact" },
+                { name: "PLACEHOLDER", target: "#placeholder" },
+              ].map((item) => (
                 <div 
-                  key={item} 
+                  key={item.name} 
                   className={`${styles.navItem} gsap-nav-item`}
+                  onClick={() => {
+                    if (lenis) {
+                      if (item.name === "ABOUT") {
+                        const st = ScrollTrigger.getById("showcase-st");
+                        if (st && st.animation) {
+                          const progress = (st.animation as any).labels["aboutPanel"] / st.animation.duration();
+                          const scrollPos = st.start + (st.end - st.start) * progress;
+                          lenis.scrollTo(scrollPos, { duration: 1.5 });
+                        }
+                      } else if (item.target === ".gsap-main-hero") {
+                        lenis.scrollTo(0, { duration: 1.5 });
+                      } else {
+                        const targetEl = document.querySelector(item.target);
+                        if (targetEl) {
+                          lenis.scrollTo(targetEl, { duration: 1.5 });
+                        }
+                      }
+                    }
+                  }}
                 >
-                  <span className={styles.navTextBase}>{item}</span>
-                  <span className={`${styles.navTextOrange} gsap-nav-orange`}>{item}</span>
+                  <span className={styles.navTextBase}>{item.name}</span>
+                  <span className={`${styles.navTextOrange} gsap-nav-orange`}>{item.name}</span>
+                  <span className={`${styles.navTextSweep} gsap-nav-sweep`}>{item.name}</span>
                   
                   <div className={styles.borderContainer}>
                     <span className={`${styles.borderTop} gsap-border-top`}></span>
@@ -457,8 +655,8 @@ export default function Home() {
                   ))}
                 </div>
               </span>
-              <span className="gsap-title-decode">THE PORTFOLIO OF</span>
-              <span className="gsap-title-decode">OMAR GAMAL.</span>
+              <span className="gsap-title-decode gsap-glitch-word" data-original="THE PORTFOLIO OF">THE PORTFOLIO OF</span>
+              <span className="gsap-title-decode gsap-glitch-word" data-original="OMAR GAMAL.">OMAR GAMAL.</span>
             </h1>
             
             <div className={`${styles.bottomSection} gsap-main-elem`}>
@@ -472,7 +670,17 @@ export default function Home() {
                   <span className="gsap-glitch-word" data-original="architecture">architecture</span>.
                 </p>
                 
-                <button className={`${styles.cta} gsap-cta`}>
+                <button 
+                  className={`${styles.cta} gsap-cta`}
+                  onClick={() => {
+                    if (lenis) {
+                      const targetEl = document.querySelector("#projects");
+                      if (targetEl) {
+                        lenis.scrollTo(targetEl, { duration: 1.5 });
+                      }
+                    }
+                  }}
+                >
                   {/* Invisible spacer for intrinsic size */}
                   <span className={styles.ctaSpacer}>VIEW PROJECTS</span>
 
@@ -497,9 +705,48 @@ export default function Home() {
           
         </div>
       </div>
+        
+      {/* Philosophy Sequence container */}
+      <div className={styles.philosophyContainer}>
+        <div className={`${styles.philosophyPhrase} ${styles.phrase1} gsap-phrase-1`}>I DON'T JUST WRITE CODE.</div>
+        <div className={`${styles.philosophyPhrase} ${styles.phrase2} gsap-phrase-2`}>I ENGINEER SYSTEMS.</div>
+        <div className={`${styles.philosophyPhrase} ${styles.phrase3} gsap-phrase-3`}>I ARCHITECT SOLUTIONS.</div>
+        <div className={`${styles.philosophyPhrase} ${styles.phrase4} gsap-phrase-4`}>I CRAFT EXPERIENCES.</div>
+        <div className={`${styles.philosophyPhrase} ${styles.phrase5} gsap-phrase-5`}>THIS IS MY WORK.</div>
+      </div>
+
+      </main>
 
       {/* Custom Cursor */}
       <div className={`${styles.cursorDot} gsap-cursor-dot`}></div>
-    </main>
+
+      {/* Invisible Scrub Spacer for Curtain Reveal */}
+      {isLoaded && (
+        <div className="gsap-scrub-spacer" style={{ height: "8000px", position: "relative", zIndex: 0 }}></div>
+      )}
+
+      {/* Projects Showcase & About Section merged */}
+      {isLoaded && (
+        <ProjectsShowcase />
+      )}
+
+      {/* Post-Animation Continuation */}
+      {isLoaded && (
+        <div style={{ minHeight: "100vh", padding: "100px 40px", display: "flex", flexDirection: "column", alignItems: "center", backgroundColor: "var(--bg)", color: "var(--ink)" }}>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "6rem", textAlign: "center", marginBottom: "40px" }}>BUILDING THE<br/>IMPOSSIBLE.</h2>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "1.5rem", lineHeight: "1.6", maxWidth: "800px", textAlign: "center" }}>
+            We are a two-person powerhouse combining ruthless engineering precision with uncompromising aesthetic standards. 
+            When the window closes, our combined expertise opens doors to digital experiences that blur the line between software and art.
+          </p>
+        </div>
+      )}
+
+      {/* Custom Scroll Progress Bar */}
+      {isLoaded && (
+        <div className={styles.scrollProgressBarContainer}>
+          <div className={`${styles.scrollProgressBarFill} gsap-scroll-progress`}></div>
+        </div>
+      )}
+    </div>
   );
 }
