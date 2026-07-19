@@ -1,0 +1,113 @@
+.capabilitiesSection {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg);
+  color: var(--ink);
+  position: relative;
+  z-index: 10;
+  display: flex;
+  overflow: hidden;
+}
+
+.capabilitiesContainer {
+  max-width: 1400px;
+  width: 100%;
+  height: 100vh;
+  margin: 0 auto;
+  padding: 80px 40px;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+}
+
+/* LEFT SIDE: List of services */
+.servicesListWrapper {
+  flex: 1;
+  position: relative;
+  height: 100vh;
+  perspective: 1200px; /* 3D effect container */
+  display: flex;
+  align-items: flex-start;
+}
+
+.servicesList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* Padding ensures the first item starts in the center, and the last item can reach the center */
+  padding-top: 50vh;
+  padding-bottom: 50vh;
+}
+
+.serviceItem {
+  width: 100%;
+  /* Creates physical scrolling distance between items */
+  padding: 15vh 0;
+  will-change: transform, opacity;
+  transform-origin: center center -100px;
+}
+
+.serviceTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.serviceDescription {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.5;
+  font-weight: 400;
+  max-width: 80%;
+}
+
+/* RIGHT SIDE: Visual Canvas */
+.visualCanvas {
+  flex: 1;
+  height: 70vh;
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  /* subtle shadow or border could go here */
+}
+
+.visualImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0; /* Hidden by default */
+  will-change: opacity, transform;
+}
+
+@media (max-width: 900px) {
+  .capabilitiesContainer {
+    flex-direction: column;
+    padding: 100px 20px 40px 20px;
+  }
+  
+  .visualCanvas {
+    width: 100%;
+    height: 40vh;
+    order: -1; /* Move image above text on mobile */
+  }
+  
+  .servicesList {
+    width: 100%;
+    gap: 1.5rem;
+  }
+  
+  .serviceTitle {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+  
+  .serviceDescription {
+    max-width: 100%;
+  }
+}

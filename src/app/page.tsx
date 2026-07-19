@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenis } from 'lenis/react';
 import ProjectsShowcase from "@/components/ProjectsShowcase";
 import StorySection from "@/components/StorySection";
+import CapabilitiesSection from "@/components/CapabilitiesSection";
 import styles from './page.module.css';
 
 // Register GSAP plugins
@@ -734,6 +735,11 @@ export default function Home() {
       {/* Post-Animation Continuation */}
       {isLoaded && (
         <StorySection />
+      )}
+
+      {/* Capabilities / Services */}
+      {isLoaded && (
+        <CapabilitiesSection />
       )}
 
       {/* Custom Scroll Progress Bar */}
