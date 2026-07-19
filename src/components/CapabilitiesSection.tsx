@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import RippleCanvas from './RippleCanvas';
 import styles from './CapabilitiesSection.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -30,27 +31,19 @@ const SERVICES = [
   {
     id: 's4',
     title: 'UI/UX Architecture',
-    description: 'We don’t just make it look good. We design psychological flows that guide users exactly where they need to be, minimizing friction and maximizing conversion.',
+    description: 'We don\u2019t just make it look good. We design psychological flows that guide users exactly where they need to be, minimizing friction and maximizing conversion.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop'
   }
 ];
+
+const SERVICE_IMAGES = SERVICES.map(s => s.image);
 
 export default function CapabilitiesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
 
   const [activeImage, setActiveImage] = useState(0);
-
-  // Handle the Image Crossfade whenever the active locked index changes
-  useEffect(() => {
-    const images = imageRefs.current.filter(Boolean);
-    if (!images.length) return;
-
-    gsap.to(images, { opacity: 0, scale: 1.05, duration: 0.8, ease: "power2.inOut" });
-    gsap.to(images[activeImage], { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out", overwrite: true });
-  }, [activeImage]);
 
   useGSAP(() => {
     if (!sectionRef.current || !listRef.current) return;
@@ -67,9 +60,7 @@ export default function CapabilitiesSection() {
     // Calculate EXACT snap points for the physical center of each item
     const snapPoints = (texts as HTMLDivElement[]).map((el) => {
       const itemCenterY = el.offsetTop + el.offsetHeight / 2;
-      // We need list y to be targetY to center this item
       const targetY = windowCenter - itemCenterY;
-      // Convert targetY to progress along the maxScrollY
       const progress = -targetY / maxScrollY;
       return Math.max(0, Math.min(1, progress));
     });
@@ -79,7 +70,7 @@ export default function CapabilitiesSection() {
         trigger: sectionRef.current,
         pin: true,
         start: "top top",
-        end: `+=${SERVICES.length * 150}%`, // Scroll distance
+        end: `+=${SERVICES.length * 150}%`,
         scrub: 0.5,
         snap: {
           snapTo: snapPoints,
@@ -90,7 +81,7 @@ export default function CapabilitiesSection() {
       onUpdate: function() {
         // 3D Hamster Wheel Math
         const windowCenter = window.innerHeight / 2;
-        const maxDist = window.innerHeight / 1.5; // Controls how fast it fades/rotates
+        const maxDist = window.innerHeight / 1.5;
         
         let minDistance = Infinity;
         let closestIdx = 0;
@@ -98,7 +89,6 @@ export default function CapabilitiesSection() {
         texts.forEach((el, i) => {
           if (!el) return;
           const rect = el.getBoundingClientRect();
-          // Calculate center of this specific text element
           const elCenter = rect.top + rect.height / 2;
           const dist = elCenter - windowCenter;
           const absDist = Math.abs(dist);
@@ -108,23 +98,19 @@ export default function CapabilitiesSection() {
             closestIdx = i;
           }
 
-          // Normalize distance (0 at center, 1 at edge)
           const normalizedDist = Math.max(0, Math.min(1, absDist / maxDist));
-          
-          // Apply 3D physics
           const scale = 1 - (normalizedDist * 0.4);
-          const opacity = 1 - (normalizedDist * 1.2); // Fades completely out before edge
-          const rotateX = (dist / maxDist) * -60; // Tilts backward as it moves away
+          const opacity = 1 - (normalizedDist * 1.2);
+          const rotateX = (dist / maxDist) * -60;
 
           gsap.set(el, {
             scale,
             opacity,
             rotateX,
-            transformOrigin: "center center -200px" // Pushes the pivot point deep into the screen
+            transformOrigin: "center center -200px"
           });
         });
 
-        // Locking mechanism: Only trigger image swap if the item is definitively snapped near the center
         if (minDistance < 40) {
           setActiveImage((prev) => {
             if (prev !== closestIdx) return closestIdx;
@@ -134,13 +120,11 @@ export default function CapabilitiesSection() {
       }
     });
 
-    // Move the entire list UP
     tl.to(listRef.current, {
       y: -maxScrollY,
       ease: "none"
     });
 
-    // Force an initial update to set 3D transforms before scrolling starts
     ScrollTrigger.refresh();
 
   }, { scope: sectionRef });
@@ -167,19 +151,12 @@ export default function CapabilitiesSection() {
           </div>
         </div>
 
-        {/* RIGHT: Visual Canvas */}
+        {/* RIGHT: WebGL Ripple Canvas */}
         <div className={styles.visualCanvas}>
-          {SERVICES.map((service, idx) => (
-            <img 
-              key={`img-${service.id}`}
-              src={service.image}
-              alt={service.title}
-              className={styles.visualImage}
-              ref={el => {
-                imageRefs.current[idx] = el;
-              }}
-            />
-          ))}
+          <RippleCanvas
+            images={SERVICE_IMAGES}
+            activeIndex={activeImage}
+          />
         </div>
 
       </div>
