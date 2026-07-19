@@ -32,8 +32,21 @@ uniform sampler2D u_imageOld;
 uniform sampler2D u_ripple;
 uniform vec2      u_texel;
 uniform float     u_blend;
+uniform vec2      u_resolution;
+uniform vec2      u_imageRes;
 
 void main() {
+  /* ---- object-fit: cover logic ---- */
+  vec2 s = u_resolution; // canvas size
+  vec2 i = u_imageRes;   // image size
+  
+  float rs = s.x / s.y;
+  float ri = i.x / i.y;
+  
+  vec2 newSize = rs < ri ? vec2(i.x * s.y / i.y, s.y) : vec2(s.x, i.y * s.x / i.x);
+  vec2 offset = (rs < ri ? vec2((newSize.x - s.x) / 2.0, 0.0) : vec2(0.0, (newSize.y - s.y) / 2.0)) / newSize;
+  vec2 uvCover = v_uv * s / newSize + offset;
+
   /* ---- ripple gradient (finite-difference normal) ---- */
   float hR = texture2D(u_ripple, v_uv + vec2(u_texel.x, 0.0)).r * 2.0 - 1.0;
   float hL = texture2D(u_ripple, v_uv - vec2(u_texel.x, 0.0)).r * 2.0 - 1.0;
@@ -46,14 +59,14 @@ void main() {
 
   /* ---- chromatic-aberration displacement ---- */
   vec3 newC;
-  newC.r = texture2D(u_image, v_uv + disp * 1.06).r;
-  newC.g = texture2D(u_image, v_uv + disp       ).g;
-  newC.b = texture2D(u_image, v_uv + disp * 0.94).b;
+  newC.r = texture2D(u_image, uvCover + disp * 1.06).r;
+  newC.g = texture2D(u_image, uvCover + disp       ).g;
+  newC.b = texture2D(u_image, uvCover + disp * 0.94).b;
 
   vec3 oldC;
-  oldC.r = texture2D(u_imageOld, v_uv + disp * 1.06).r;
-  oldC.g = texture2D(u_imageOld, v_uv + disp       ).g;
-  oldC.b = texture2D(u_imageOld, v_uv + disp * 0.94).b;
+  oldC.r = texture2D(u_imageOld, uvCover + disp * 1.06).r;
+  oldC.g = texture2D(u_imageOld, uvCover + disp       ).g;
+  oldC.b = texture2D(u_imageOld, uvCover + disp * 0.94).b;
 
   gl_FragColor = vec4(mix(oldC, newC, u_blend), 1.0);
 }
@@ -111,6 +124,7 @@ interface GLState {
   prog:      WebGLProgram;
   quad:      WebGLBuffer;
   imgTex:    WebGLTexture[];
+  imgRes:    [number, number];
   rippleTex: WebGLTexture;
   simA:      Float32Array;
   simB:      Float32Array;
@@ -198,6 +212,9 @@ function render(s: GLState, c: HTMLCanvasElement) {
 
   gl.uniform2f(gl.getUniformLocation(s.prog, 'u_texel'), 1 / SIM_SIZE, 1 / SIM_SIZE);
   gl.uniform1f(gl.getUniformLocation(s.prog, 'u_blend'), s.blend.value);
+  
+  gl.uniform2f(gl.getUniformLocation(s.prog, 'u_resolution'), c.width, c.height);
+  gl.uniform2f(gl.getUniformLocation(s.prog, 'u_imageRes'), s.imgRes[0], s.imgRes[1]);
 
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
@@ -258,7 +275,7 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
       const imgTex = els.map(img => texFromImg(gl, img));
 
       const s: GLState = {
-        gl, prog, quad, imgTex, rippleTex,
+        gl, prog, quad, imgTex, imgRes: [els[0].width, els[0].height], rippleTex,
         simA:    new Float32Array(SIM_SIZE * SIM_SIZE),
         simB:    new Float32Array(SIM_SIZE * SIM_SIZE),
         simFlip: 0,

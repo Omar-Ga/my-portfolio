@@ -25,7 +25,7 @@
   flex: 1;
   position: relative;
   height: 100vh;
-  perspective: 1200px; /* 3D effect container */
+  perspective: 800px; /* 3D effect container */
   display: flex;
   align-items: flex-start;
 }
@@ -42,7 +42,7 @@
 .serviceItem {
   width: 100%;
   /* Creates physical scrolling distance between items */
-  padding: 15vh 0;
+  padding: 5vh 0; /* Reduced from 15vh to drastically decrease the massive gap */
   will-change: transform, opacity;
   transform-origin: center center -100px;
 }

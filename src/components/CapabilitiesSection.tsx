@@ -70,16 +70,16 @@ export default function CapabilitiesSection() {
         trigger: sectionRef.current,
         pin: true,
         start: "top top",
-        end: `+=${SERVICES.length * 150}%`,
-        scrub: 0.5,
+        end: `+=${SERVICES.length * 200}%`, // Reduced by ~20% to slightly increase scroll speed
+        scrub: 0.7, // Tightened scrub slightly for faster response
         snap: {
           snapTo: snapPoints,
-          duration: { min: 0.2, max: 0.6 },
+          duration: { min: 0.3, max: 0.8 },
           ease: "power2.inOut"
         }
       },
       onUpdate: function() {
-        // 3D Hamster Wheel Math
+        // Premium 3D Cylinder Math
         const windowCenter = window.innerHeight / 2;
         const maxDist = window.innerHeight / 1.5;
         
@@ -99,15 +99,23 @@ export default function CapabilitiesSection() {
           }
 
           const normalizedDist = Math.max(0, Math.min(1, absDist / maxDist));
-          const scale = 1 - (normalizedDist * 0.4);
-          const opacity = 1 - (normalizedDist * 1.2);
-          const rotateX = (dist / maxDist) * -60;
+          
+          // Easing curve: keeps the center item flat longer, sharply curves at the edges
+          const curve = Math.pow(normalizedDist, 1.5);
+          
+          const scale = 1 - (curve * 0.3);
+          const opacity = 1 - (curve * 1.0);
+          
+          // Re-introduce Z-depth but driven by the smooth curve so it doesn't mess up center spacing
+          const rotateX = (dist / maxDist) * -90; // Balanced rotation angle
+          const z = curve * -100; // Decreased pushback to prevent massive visual gaps
 
           gsap.set(el, {
             scale,
             opacity,
             rotateX,
-            transformOrigin: "center center -200px"
+            z,
+            transformOrigin: "center center -150px" // Decreased cylinder radius to pack items closer
           });
         });
 
