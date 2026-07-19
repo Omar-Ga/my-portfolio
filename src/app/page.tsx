@@ -7,6 +7,7 @@ import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenis } from 'lenis/react';
 import ProjectsShowcase from "@/components/ProjectsShowcase";
+import StorySection from "@/components/StorySection";
 import styles from './page.module.css';
 
 // Register GSAP plugins
@@ -615,7 +616,7 @@ export default function Home() {
                       } else if (item.target === ".gsap-main-hero") {
                         lenis.scrollTo(0, { duration: 1.5 });
                       } else {
-                        const targetEl = document.querySelector(item.target);
+                        const targetEl = document.querySelector(item.target) as HTMLElement;
                         if (targetEl) {
                           lenis.scrollTo(targetEl, { duration: 1.5 });
                         }
@@ -674,7 +675,7 @@ export default function Home() {
                   className={`${styles.cta} gsap-cta`}
                   onClick={() => {
                     if (lenis) {
-                      const targetEl = document.querySelector("#projects");
+                      const targetEl = document.querySelector("#projects") as HTMLElement;
                       if (targetEl) {
                         lenis.scrollTo(targetEl, { duration: 1.5 });
                       }
@@ -732,13 +733,7 @@ export default function Home() {
 
       {/* Post-Animation Continuation */}
       {isLoaded && (
-        <div style={{ minHeight: "100vh", padding: "100px 40px", display: "flex", flexDirection: "column", alignItems: "center", backgroundColor: "var(--bg)", color: "var(--ink)" }}>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "6rem", textAlign: "center", marginBottom: "40px" }}>BUILDING THE<br/>IMPOSSIBLE.</h2>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: "1.5rem", lineHeight: "1.6", maxWidth: "800px", textAlign: "center" }}>
-            We are a two-person powerhouse combining ruthless engineering precision with uncompromising aesthetic standards. 
-            When the window closes, our combined expertise opens doors to digital experiences that blur the line between software and art.
-          </p>
-        </div>
+        <StorySection />
       )}
 
       {/* Custom Scroll Progress Bar */}

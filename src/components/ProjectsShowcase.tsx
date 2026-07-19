@@ -160,6 +160,7 @@ export default function ProjectsShowcase() {
     const viewportWidth = window.innerWidth;
     const horizontalScrollDist = totalWidth - viewportWidth;
     const verticalScrollDist = window.innerHeight * 1.5; // Duration of window close
+    const holdDist = window.innerHeight * 0.4; // Hold the closed window state before unpinning
 
     // Initial state for window halves
     gsap.set(leftHalfRef.current, { xPercent: -100 });
@@ -171,8 +172,8 @@ export default function ProjectsShowcase() {
         trigger: sectionRef.current,
         pin: true,
         scrub: 1, // Smooth scrubbing
-        // Total scroll distance is the horizontal scroll + the vertical window close
-        end: () => "+=" + (horizontalScrollDist + verticalScrollDist)
+        // Total scroll distance is the horizontal scroll + the vertical window close + the hold
+        end: () => "+=" + (horizontalScrollDist + verticalScrollDist + holdDist)
       }
     });
 
@@ -203,6 +204,9 @@ export default function ProjectsShowcase() {
       duration: verticalScrollDist / 2
     }, "aboutPanel");
 
+    // 4. Hold the closed state
+    tl.to({}, { duration: holdDist });
+
   }, { scope: sectionRef });
 
   return (
@@ -229,7 +233,7 @@ export default function ProjectsShowcase() {
                 } else if (item.target === ".gsap-main-hero") {
                   lenis.scrollTo(0, { duration: 1.5 });
                 } else {
-                  const targetEl = document.querySelector(item.target);
+                  const targetEl = document.querySelector(item.target) as HTMLElement;
                   if (targetEl) {
                     lenis.scrollTo(targetEl, { duration: 1.5 });
                   }
@@ -252,31 +256,31 @@ export default function ProjectsShowcase() {
           
           {/* The Window Split Animation (Overlay) */}
           <div className={styles.windowContainer}>
-            {/* Left Founder */}
+            {/* Left Pillar */}
             <div className={`${styles.windowHalf} ${styles.leftHalf}`} ref={leftHalfRef}>
               <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop" 
-                alt="Omar Gamal" 
+                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" 
+                alt="Technical Direction" 
                 className={styles.founderImage} 
               />
               <div className={styles.overlay}></div>
               <div className={styles.founderInfo}>
-                <p className={styles.founderRole}>Technical Director</p>
-                <h3 className={styles.founderName}>OMAR<br/>GAMAL</h3>
+                <p className={styles.founderRole}>The Code</p>
+                <h3 className={styles.founderName} style={{ fontSize: "clamp(2rem, 3.5vw, 4rem)" }}>TECHNICAL<br/>DIRECTION</h3>
               </div>
             </div>
 
-            {/* Right Founder */}
+            {/* Right Pillar */}
             <div className={`${styles.windowHalf} ${styles.rightHalf}`} ref={rightHalfRef}>
               <img 
-                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop" 
-                alt="Co-Founder" 
+                src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop" 
+                alt="Strategy & Operations" 
                 className={styles.founderImage} 
               />
               <div className={styles.overlay}></div>
               <div className={styles.founderInfo}>
-                <p className={styles.founderRole}>Creative Director</p>
-                <h3 className={styles.founderName}>ALEX<br/>REYNOLDS</h3>
+                <p className={styles.founderRole}>The Strategy</p>
+                <h3 className={styles.founderName} style={{ fontSize: "clamp(2rem, 3.5vw, 4rem)" }}>CLIENT<br/>RELATIONS</h3>
               </div>
             </div>
           </div>
