@@ -9,6 +9,7 @@ import { useLenis } from 'lenis/react';
 import ProjectsShowcase from "@/components/ProjectsShowcase";
 import StorySection from "@/components/StorySection";
 import CapabilitiesSection from "@/components/CapabilitiesSection";
+import ContactOverlay from "@/components/ContactOverlay";
 import styles from './page.module.css';
 
 // Register GSAP plugins
@@ -28,6 +29,7 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const lenis = useLenis();
 
   // Control scrolling with Lenis during the cinematic boot phase
@@ -40,7 +42,34 @@ export default function Home() {
       }
     }
   }, [lenis, isLoaded]);
+
+  // Listen for the global 'open-contact' event fired by any nav on the page
+  useEffect(() => {
+    const handleOpenContact = () => setIsContactOpen(true);
+    window.addEventListener('open-contact', handleOpenContact);
+    return () => window.removeEventListener('open-contact', handleOpenContact);
+  }, []);
   
+  // 3D scale down effect when Contact overlay opens -> Changed to Environmental Lighting Shift
+  useGSAP(() => {
+    if (isContactOpen) {
+      // Dissolve the hero content
+      gsap.to(".gsap-main-elem:not(.gsap-sidebar)", { opacity: 0, y: 30, duration: 1, ease: "power3.in" });
+      
+      // Invert sidebar color to white
+      gsap.to(".gsap-sidebar", { color: "#fff", borderColor: "rgba(255,255,255,0.2)", duration: 1.5 });
+      
+      if (lenis) lenis.stop();
+    } else {
+      // Restore hero content
+      gsap.to(".gsap-main-elem:not(.gsap-sidebar)", { opacity: 1, y: 0, duration: 1.5, ease: "power3.out", delay: 0.5 });
+      
+      // Restore sidebar color
+      gsap.to(".gsap-sidebar", { color: "#000", borderColor: "var(--primary)", duration: 1.5 });
+      
+      if (lenis && isLoaded) lenis.start();
+    }
+  }, [isContactOpen, lenis, isLoaded]);
   useGSAP((context, contextSafe) => {
     // Performance optimizations
     gsap.config({ force3D: true });
@@ -564,12 +593,13 @@ export default function Home() {
   }, { scope: wrapperRef, dependencies: [isLoaded] });
 
   return (
+    <>
     <div className={`${styles.pageWrapper} gsap-page-wrapper`} ref={wrapperRef}>
       <main className={styles.main} ref={containerRef}>
         
-        {/* Background Video */}
+        {/* Light Video Background */}
       <video 
-        className={`${styles.videoBackground} gsap-video-bg`}
+        className={`${styles.videoBackgroundLight} gsap-video-light gsap-video-bg`}
         autoPlay 
         loop 
         muted 
@@ -593,7 +623,7 @@ export default function Home() {
         <div className={styles.contentWrapper}>
           
           {/* Sidebar */}
-          <aside className={`${styles.sidebar} gsap-main-elem`}>
+          <aside className={`${styles.sidebar} gsap-main-elem gsap-sidebar`}>
             <div className={styles.logo}>OG</div>
             <nav className={styles.nav}>
               {[
@@ -607,7 +637,9 @@ export default function Home() {
                   className={`${styles.navItem} gsap-nav-item`}
                   onClick={() => {
                     if (lenis) {
-                      if (item.name === "ABOUT") {
+                      if (item.name === "CONTACT") {
+                        setIsContactOpen(true);
+                      } else if (item.name === "ABOUT") {
                         const st = ScrollTrigger.getById("showcase-st");
                         if (st && st.animation) {
                           const progress = (st.animation as any).labels["aboutPanel"] / st.animation.duration();
@@ -719,8 +751,7 @@ export default function Home() {
 
       </main>
 
-      {/* Custom Cursor */}
-      <div className={`${styles.cursorDot} gsap-cursor-dot`}></div>
+      {/* Custom Cursor moved outside pageWrapper */}
 
       {/* Invisible Scrub Spacer for Curtain Reveal */}
       {isLoaded && (
@@ -749,5 +780,10 @@ export default function Home() {
         </div>
       )}
     </div>
+    <ContactOverlay isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+    
+    {/* Custom Cursor */}
+    <div className={`${styles.cursorDot} gsap-cursor-dot`}></div>
+    </>
   );
 }

@@ -222,7 +222,9 @@ export default function ProjectsShowcase() {
             key={item.name}
             className={styles.topNavItem}
             onClick={() => {
-              if (lenis) {
+              if (item.name === "CONTACT") {
+                window.dispatchEvent(new Event('open-contact'));
+              } else if (lenis) {
                 if (item.name === "ABOUT") {
                   const st = ScrollTrigger.getById("showcase-st");
                   if (st && st.animation) {
