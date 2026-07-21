@@ -83,9 +83,9 @@ export default function ContactOverlay({ isOpen, onClose }: ContactOverlayProps)
 
         <div className={styles.mainLayout} ref={contentRef}>
           <div className={styles.leftCol}>
-            <h1 className={styles.title}>Let's<br />Talk.</h1>
+            <h1 className={styles.title}>Let&apos;s<br />Talk.</h1>
             <p className={styles.subtitle}>
-              Whether you have a massive project in mind or just want to discuss the boundaries of web architecture, I'm always open to talking with ambitious people.
+              Whether you have a massive project in mind or just want to discuss the boundaries of web architecture, I&apos;m always open to talking with ambitious people.
             </p>
           </div>
 

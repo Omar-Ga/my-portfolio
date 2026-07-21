@@ -228,7 +228,7 @@ export default function ProjectsShowcase() {
                 if (item.name === "ABOUT") {
                   const st = ScrollTrigger.getById("showcase-st");
                   if (st && st.animation) {
-                    const progress = (st.animation as any).labels["aboutPanel"] / st.animation.duration();
+                    const progress = (st.animation as gsap.core.Timeline).labels["aboutPanel"] / st.animation.duration();
                     const scrollPos = st.start + (st.end - st.start) * progress;
                     lenis.scrollTo(scrollPos, { duration: 1.5 });
                   }
