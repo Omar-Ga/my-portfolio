@@ -217,31 +217,4 @@
   line-height: 1;
 }
 
-/* ==========================================================================
-   Navigation Bar styles
-   ========================================================================== */
-.topNav {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  right: 40px;
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  z-index: 20;
-}
 
-.topNavItem {
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #000;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-}
-
-.topNavItem:hover {
-  opacity: 0.5;
-}

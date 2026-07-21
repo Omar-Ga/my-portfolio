@@ -1,10 +1,11 @@
 /* Hero Section */
 .hero {
   flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0 6rem;
+  justify-content: flex-end;
+  padding: 0 6rem 6vh 6rem;
 }
 
 .title {
@@ -13,7 +14,7 @@
   line-height: 0.95;
   letter-spacing: -0.04em;
   font-weight: 500;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
   color: #000;
 }
 

@@ -148,7 +148,6 @@ export default function ProjectsShowcase() {
   const trackRef = useRef<HTMLDivElement>(null);
   const leftHalfRef = useRef<HTMLDivElement>(null);
   const rightHalfRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
   const lenis = useLenis();
 
   useGSAP(() => {
@@ -197,11 +196,6 @@ export default function ProjectsShowcase() {
       xPercent: 0, 
       ease: "none", 
       duration: verticalScrollDist 
-    }, "aboutPanel")
-    .to(navRef.current, {
-      opacity: 0,
-      ease: "power2.out",
-      duration: verticalScrollDist / 2
     }, "aboutPanel");
 
     // 4. Hold the closed state
@@ -211,42 +205,6 @@ export default function ProjectsShowcase() {
 
   return (
     <section className={styles.showcaseWrapper} ref={sectionRef} id="projects">
-      <nav className={styles.topNav} ref={navRef}>
-        {[
-          { name: "HOME", target: ".gsap-main-hero" },
-          { name: "ABOUT", target: "#about" },
-          { name: "CONTACT", target: "#contact" },
-          { name: "PLACEHOLDER", target: "#placeholder" },
-        ].map((item) => (
-          <div
-            key={item.name}
-            className={styles.topNavItem}
-            onClick={() => {
-              if (item.name === "CONTACT") {
-                window.dispatchEvent(new Event('open-contact'));
-              } else if (lenis) {
-                if (item.name === "ABOUT") {
-                  const st = ScrollTrigger.getById("showcase-st");
-                  if (st && st.animation) {
-                    const progress = (st.animation as gsap.core.Timeline).labels["aboutPanel"] / st.animation.duration();
-                    const scrollPos = st.start + (st.end - st.start) * progress;
-                    lenis.scrollTo(scrollPos, { duration: 1.5 });
-                  }
-                } else if (item.target === ".gsap-main-hero") {
-                  lenis.scrollTo(0, { duration: 1.5 });
-                } else {
-                  const targetEl = document.querySelector(item.target) as HTMLElement;
-                  if (targetEl) {
-                    lenis.scrollTo(targetEl, { duration: 1.5 });
-                  }
-                }
-              }
-            }}
-          >
-            {item.name}
-          </div>
-        ))}
-      </nav>
       <div className={styles.horizontalTrack} ref={trackRef}>
         {PROJECTS.map(p => (
           <ProjectPanel key={p.id} project={p} />

@@ -243,7 +243,7 @@ export default function HeroSection() {
   });
 
   return (
-    <div ref={containerRef} style={{ flex: 1 }}>
+    <div ref={containerRef} style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Main Hero Area */}
       <section className={styles.hero}>
         

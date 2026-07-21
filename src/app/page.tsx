@@ -10,6 +10,7 @@ import CustomCursor from "@/components/CustomCursor";
 import BootLoader from "@/components/BootLoader";
 import SidebarNav from "@/components/SidebarNav";
 import HeroSection from "@/components/HeroSection";
+import GlobalNav from "@/components/GlobalNav";
 import ProjectsShowcase from "@/components/ProjectsShowcase";
 import StorySection from "@/components/StorySection";
 import CapabilitiesSection from "@/components/CapabilitiesSection";
@@ -113,6 +114,7 @@ export default function Home() {
   return (
     <>
       <div className={`${styles.pageWrapper} gsap-page-wrapper`} ref={wrapperRef}>
+        <GlobalNav />
         <main className={styles.main} ref={containerRef}>
           
           {/* Light Video Background */}
