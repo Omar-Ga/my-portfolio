@@ -6,6 +6,7 @@ import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import RippleCanvas from './RippleCanvas';
 import styles from './CapabilitiesSection.module.css';
+import { WebGLShader } from './ui/web-gl-shader';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -139,7 +140,8 @@ export default function CapabilitiesSection() {
 
   return (
     <section className={styles.capabilitiesSection} ref={sectionRef} id="capabilities">
-      <div className={styles.capabilitiesContainer}>
+      <WebGLShader />
+      <div className={styles.capabilitiesContainer} style={{ position: 'relative' }}>
         
         {/* LEFT: Services 3D Wheel */}
         <div className={styles.servicesListWrapper}>

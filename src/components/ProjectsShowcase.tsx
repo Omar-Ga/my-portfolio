@@ -16,67 +16,41 @@ if (typeof window !== "undefined") {
 const PROJECTS = [
   {
     id: "p1",
-    title: "E-Commerce Platform",
-    role: "Full Stack Engineer",
-    description: "A high-performance modern e-commerce platform built with Next.js and Stripe, featuring a dynamic headless CMS.",
+    title: "SkyCourt Warehouse Engine",
+    role: "Systems Architect & Lead Developer",
+    description: "Offline-first enterprise logistics & inventory management platform powered by Turso LibSQL embedded replicas, real-time barcode scanning, and multi-platform desktop/web deployment.",
     images: [
-      "https://images.unsplash.com/photo-1557821552-171051530d19?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop"
+      "/images/skycourt/skycourt_1.webp",
+      "/images/skycourt/skycourt_2.webp",
+      "/images/skycourt/skycourt_3.webp",
+      "/images/skycourt/skycourt_4.webp",
+      "/images/skycourt/skycourt_5.webp"
     ]
   },
   {
     id: "p2",
-    title: "Financial Dashboard",
-    role: "Frontend Architect",
-    description: "Real-time interactive dashboard visualizing millions of data points with sub-second latency.",
+    title: "Ultra-Premium Web Designs",
+    role: "Creative Technologist & Web Architect",
+    description: "Delivering bespoke, agency-grade websites without the traditional price tag. Showcasing a rich portfolio of high-impact visual designs, fluid motion, and high-converting web architecture.",
     images: [
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1533750349088-cd871a92f312?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1543286386-713bdd548da4?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?q=80&w=800&auto=format&fit=crop"
+      "/images/o2mation/o2mation_1.webp",
+      "/images/o2mation/o2mation_2.webp",
+      "/images/o2mation/o2mation_3.webp",
+      "/images/o2mation/o2mation_4.webp",
+      "/images/o2mation/o2mation_5.webp"
     ]
   },
   {
     id: "p3",
-    title: "AI Chat Interface",
-    role: "Lead Developer",
-    description: "An elegant, conversational UI integrating advanced LLMs directly into the browser workflow.",
+    title: "Kafa'a AI Talent Platform",
+    role: "Lead AI & Full-Stack Engineer",
+    description: "An enterprise AI recruitment SaaS that parses unstructured CV resumes, calculates multi-variable candidate match scores, and orchestrates automated AI candidate interviews.",
     images: [
-      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1678286570176-96eb1adca744?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1679083216051-aa510a1a2c0e?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?q=80&w=800&auto=format&fit=crop"
-    ]
-  },
-  {
-    id: "p4",
-    title: "Global Logistics API",
-    role: "Backend Architect",
-    description: "A robust set of microservices powering international supply chain tracking and predictive routing.",
-    images: [
-      "https://images.unsplash.com/photo-1586528116311-ad8ed7c159ad?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1517436073-3b1b1b48b61c?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?q=80&w=800&auto=format&fit=crop"
-    ]
-  },
-  {
-    id: "p5",
-    title: "Healthcare Portal",
-    role: "UX Engineer",
-    description: "An accessible, HIPAA-compliant patient management interface designed for clarity and ease of use.",
-    images: [
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1584982751601-97d883c61009?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=800&auto=format&fit=crop"
+      "/images/kafaa/kafaa_1.webp",
+      "/images/kafaa/kafaa_2.webp",
+      "/images/kafaa/kafaa_3.webp",
+      "/images/kafaa/kafaa_4.webp",
+      "/images/kafaa/kafaa_5.webp"
     ]
   }
 ];
@@ -116,21 +90,36 @@ const ProjectPanel = ({ project }: { project: typeof PROJECTS[0] }) => {
     return styles[`pos${rel}` as keyof typeof styles];
   };
 
+  const displayImages = project.images && project.images.length > 0 
+    ? project.images 
+    : ["", "", "", "", ""];
+
   return (
     <div className={styles.projectPanel} ref={containerRef}>
       <div className={styles.imageLayout}>
-        {project.images.map((url, i) => (
+        {displayImages.map((url, i) => (
           <div 
             key={i}
             className={`${styles.imageSlot} img-target-${project.id} ${getPosClass(i)}`}
             onClick={() => handleSwap(i)}
             data-flip-id={`img-${project.id}-${i}`}
           >
-            <img 
-              src={url}
-              className={styles.projectImage}
-              alt={`Project screenshot ${i}`}
-            />
+            {url ? (
+              <img 
+                src={url}
+                className={styles.projectImage}
+                alt={`Project screenshot ${i}`}
+                onLoad={() => {
+                  if (typeof window !== "undefined") {
+                    ScrollTrigger.refresh();
+                  }
+                }}
+              />
+            ) : (
+              <div className={styles.placeholderCard}>
+                <span className={styles.placeholderLabel}>Frame {i + 1}</span>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -154,12 +143,11 @@ export default function ProjectsShowcase() {
     const track = trackRef.current;
     if (!track || !leftHalfRef.current || !rightHalfRef.current) return;
 
-    // Calculate dimensions
-    const totalWidth = track.scrollWidth;
-    const viewportWidth = window.innerWidth;
-    const horizontalScrollDist = totalWidth - viewportWidth;
-    const verticalScrollDist = window.innerHeight * 1.5; // Duration of window close
-    const holdDist = window.innerHeight * 0.4; // Hold the closed window state before unpinning
+    // Functions for dynamic dimensions on refresh / resize
+    const getInitialHoldDist = () => window.innerHeight * 0.20;
+    const getHorizontalDist = () => track.scrollWidth - window.innerWidth;
+    const getVerticalDist = () => window.innerHeight * 1.5;
+    const getHoldDist = () => window.innerHeight * 0.4;
 
     // Initial state for window halves
     gsap.set(leftHalfRef.current, { xPercent: -100 });
@@ -171,35 +159,39 @@ export default function ProjectsShowcase() {
         trigger: sectionRef.current,
         pin: true,
         scrub: 1, // Smooth scrubbing
-        // Total scroll distance is the horizontal scroll + the vertical window close + the hold
-        end: () => "+=" + (horizontalScrollDist + verticalScrollDist + holdDist)
+        invalidateOnRefresh: true, // Recalculate on window resize / display scaling
+        // Total scroll distance is initial hold + horizontal scroll + vertical window close + hold
+        end: () => "+=" + (getInitialHoldDist() + getHorizontalDist() + getVerticalDist() + getHoldDist())
       }
     });
 
-    // 1. Horizontal Scroll (duration corresponds to physical scroll pixels)
+    // 1. Initial Hold (leeway for first project to settle before horizontal scrolling)
+    tl.to({}, { duration: () => getInitialHoldDist() });
+
+    // 2. Horizontal Scroll (duration corresponds to physical scroll pixels)
     tl.to(track, {
-      x: -horizontalScrollDist,
+      x: () => -getHorizontalDist(),
       ease: "none",
-      duration: horizontalScrollDist
+      duration: () => getHorizontalDist()
     });
 
-    // 2. Add Label so nav can jump exactly to the end of horizontal scroll
+    // 3. Add Label so nav can jump exactly to the end of horizontal scroll
     tl.addLabel("aboutPanel");
 
-    // 3. Window Close Animation (starts immediately after horizontal scroll)
+    // 4. Window Close Animation (starts immediately after horizontal scroll)
     tl.to(leftHalfRef.current, { 
       xPercent: 0, 
       ease: "none", 
-      duration: verticalScrollDist 
+      duration: () => getVerticalDist() 
     }, "aboutPanel")
     .to(rightHalfRef.current, { 
       xPercent: 0, 
       ease: "none", 
-      duration: verticalScrollDist 
+      duration: () => getVerticalDist() 
     }, "aboutPanel");
 
-    // 4. Hold the closed state
-    tl.to({}, { duration: holdDist });
+    // 5. Hold the closed state
+    tl.to({}, { duration: () => getHoldDist() });
 
   }, { scope: sectionRef });
 
@@ -219,7 +211,7 @@ export default function ProjectsShowcase() {
             {/* Left Pillar */}
             <div className={`${styles.windowHalf} ${styles.leftHalf}`} ref={leftHalfRef}>
               <img 
-                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" 
+                src="/images/split/tech_direction.webp" 
                 alt="Technical Direction" 
                 className={styles.founderImage} 
               />
@@ -233,7 +225,7 @@ export default function ProjectsShowcase() {
             {/* Right Pillar */}
             <div className={`${styles.windowHalf} ${styles.rightHalf}`} ref={rightHalfRef}>
               <img 
-                src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=800&auto=format&fit=crop" 
+                src="/images/split/client_strategy.webp" 
                 alt="Strategy & Operations" 
                 className={styles.founderImage} 
               />

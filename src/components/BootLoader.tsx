@@ -21,7 +21,23 @@ export default function BootLoader({ onComplete }: BootLoaderProps) {
     // Performance optimizations
     gsap.config({ force3D: true });
 
+    const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const skipIntro = true; // Set to false to re-enable intro sequence
+
+    // If user prefers reduced motion, reveal everything instantly without animation
+    if (prefersReducedMotion) {
+      gsap.set(".gsap-dark-overlay", { opacity: 0, display: "none" });
+      gsap.set(".gsap-video-bg", { autoAlpha: 1, scale: 1 });
+      gsap.set(".gsap-main-hero", { opacity: 1 });
+      gsap.set(".gsap-main-elem", { autoAlpha: 1, y: 0 });
+      gsap.set(".gsap-title-decode", { autoAlpha: 1 });
+      gsap.set(".gsap-rotating-container", { autoAlpha: 1 });
+      gsap.set(".gsap-cta", { autoAlpha: 1, y: 0 });
+      gsap.set(".gsap-subtitle", { autoAlpha: 1, y: 0 });
+      document.body.style.overflow = "";
+      onComplete();
+      return;
+    }
 
     // Lock scroll during boot phase
     if (!skipIntro) {

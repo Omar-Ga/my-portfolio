@@ -28,7 +28,7 @@ export default function Home() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const lenis = useLenis();
 
-  // Control scrolling with Lenis during the cinematic boot phase
+  // Control scrolling with Lenis during the cinematic boot phase and handle ScrollTrigger refresh
   useEffect(() => {
     if (lenis) {
       if (!isLoaded) {
@@ -36,6 +36,30 @@ export default function Home() {
       } else {
         lenis.start();
       }
+    }
+
+    if (isLoaded) {
+      // Fix 1: Force ScrollTrigger refresh once fonts & assets finish loading
+      // (prevents jumbled layout on network latency / Cloudflare tunnel)
+      const handleRefresh = () => {
+        ScrollTrigger.refresh();
+      };
+
+      if (typeof document !== 'undefined' && 'fonts' in document) {
+        document.fonts.ready.then(handleRefresh);
+      }
+
+      window.addEventListener('load', handleRefresh);
+      window.addEventListener('resize', handleRefresh);
+
+      // Delayed refresh as fallback for dynamic media
+      const timer = setTimeout(handleRefresh, 1000);
+
+      return () => {
+        window.removeEventListener('load', handleRefresh);
+        window.removeEventListener('resize', handleRefresh);
+        clearTimeout(timer);
+      };
     }
   }, [lenis, isLoaded]);
 
@@ -100,7 +124,8 @@ export default function Home() {
         trigger: wrapperRef.current,
         start: "top top",
         end: "bottom bottom",
-        scrub: 0.1
+        scrub: 0.1,
+        invalidateOnRefresh: true
       }
     });
 
@@ -114,7 +139,7 @@ export default function Home() {
   return (
     <>
       <div className={`${styles.pageWrapper} gsap-page-wrapper`} ref={wrapperRef}>
-        <GlobalNav />
+        {isLoaded && <GlobalNav />}
         <main className={styles.main} ref={containerRef}>
           
           {/* Light Video Background */}
@@ -139,8 +164,8 @@ export default function Home() {
           </div>
         </main>
 
-        {/* Invisible Scrub Spacer for Curtain Reveal */}
-        <div className="gsap-scrub-spacer" style={{ height: "8000px", position: "relative", zIndex: 0 }}></div>
+        {/* Invisible Scrub Spacer for Curtain Reveal — 500vh adapts dynamically to screen height */}
+        <div className="gsap-scrub-spacer" style={{ height: "500vh", position: "relative", zIndex: 0 }}></div>
 
         {/* Projects Showcase & About Section merged */}
         {isLoaded && <ProjectsShowcase />}
@@ -164,3 +189,4 @@ export default function Home() {
     </>
   );
 }
+

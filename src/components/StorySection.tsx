@@ -44,6 +44,16 @@ export default function StorySection() {
 
   return (
     <section className={styles.storySection} id="about" ref={containerRef}>
+      <video 
+        className={styles.storyVideo} 
+        autoPlay 
+        loop 
+        muted 
+        playsInline
+      >
+        <source src="/story_bg.webm" type="video/webm" />
+        <source src="/story_bg.mp4" type="video/mp4" />
+      </video>
       <div className={styles.storyContainer}>
         <h2 className={styles.storyHeadline}>PREMIUM EXECUTION.<br/>NO COMPROMISES.</h2>
         <div className={styles.storyContent}>

@@ -1,7 +1,7 @@
 .capabilitiesSection {
   min-height: 100vh;
   width: 100%;
-  background-color: var(--bg);
+  background-color: transparent;
   color: var(--ink);
   position: relative;
   z-index: 10;
@@ -28,6 +28,7 @@
   perspective: 800px; /* 3D effect container */
   display: flex;
   align-items: flex-start;
+  mix-blend-mode: difference;
 }
 
 .servicesList {
@@ -45,6 +46,7 @@
   padding: 5vh 0; /* Reduced from 15vh to drastically decrease the massive gap */
   will-change: transform, opacity;
   transform-origin: center center -100px;
+  color: #ffffff;
 }
 
 .serviceTitle {

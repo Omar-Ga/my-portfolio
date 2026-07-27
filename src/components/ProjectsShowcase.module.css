@@ -19,11 +19,11 @@
 .projectPanel {
   width: 100vw;
   height: 100vh;
-  padding: 80px 40px 40px 40px;
+  padding: clamp(80px, 10vh, 115px) clamp(20px, 4vw, 40px) clamp(25px, 3.5vh, 45px) clamp(20px, 4vw, 40px);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  gap: 40px;
+  gap: 20px;
 }
 
 /* 
@@ -65,6 +65,32 @@
   display: block;
 }
 
+.placeholderCard {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.07) 100%);
+  border: 1px dashed rgba(0,0,0,0.12);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.imageSlot:hover .placeholderCard {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 100%);
+}
+
+.placeholderLabel {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0,0,0,0.3);
+}
+
 /* Text layout */
 .textSection {
   height: 25vh;
@@ -78,27 +104,27 @@
 
 .projectTitle {
   font-family: var(--font-serif);
-  font-size: 4rem;
+  font-size: clamp(2.2rem, 4vw, 4rem);
   color: #000;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .projectRole {
   font-family: var(--font-sans);
-  font-size: 1.2rem;
+  font-size: clamp(0.9rem, 1.2vw, 1.2rem);
   font-weight: 600;
   color: #f97316;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .projectDescription {
   font-family: var(--font-sans);
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 1.1vw, 1.1rem);
   color: #333;
   max-width: 60ch;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* About Teaser Finale */
@@ -118,7 +144,7 @@
 
 .teaserTitle {
   font-family: var(--font-serif);
-  font-size: 8rem;
+  font-size: clamp(3.5rem, 8vw, 8rem);
   line-height: 1;
   text-align: center;
   text-transform: uppercase;
@@ -126,7 +152,7 @@
 
 .teaserSubtitle {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
   color: #f97316;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -179,7 +205,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(100%) contrast(1.2);
   z-index: 1;
 }
 

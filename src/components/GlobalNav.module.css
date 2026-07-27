@@ -1,6 +1,6 @@
 .topNav {
   position: fixed;
-  top: 40px;
+  top: 24px;
   left: 0;
   width: 100vw;
   display: flex;
@@ -9,6 +9,8 @@
   z-index: 100;
   mix-blend-mode: difference;
   pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
 }
 
 .topNavItem {
