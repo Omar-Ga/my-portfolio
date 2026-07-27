@@ -9,9 +9,9 @@ import styles from '@/app/page.module.css';
 gsap.registerPlugin(ScrollTrigger);
 
 const paragraphs = [
-  "We operate on a two-pillar foundation. One of us lives in the code, isolated and hyper-focused on engineering flawless, straight-to-the-point systems. The other lives in the strategy, managing client relations, marketing, and ensuring absolute clarity from day one. When you work with us, you get senior-level craftsmanship without the complications.",
-  "We don’t deliver over-engineered AI slop or rely on standard templates. Every line of code, every feature, and every design choice is made with purpose. We build features that don’t just work—they amaze.",
-  "From the architecture to the aesthetics, the result is a premium digital product. Your vision is in elite hands. We take the complexity out of the process, leaving you with total reassurance and a product that redefines your industry."
+  "I operate on a dual-pillar discipline, coupling deep, scalable backend architecture with fluid, high-converting frontend interfaces. When you work with me, you get direct senior-level engineering craftsmanship without agency overhead or middle-management bloat.",
+  "I don’t deliver over-engineered AI slop or rely on generic templates. Every line of code, every architectural decision, and every motion keyframe is crafted with purpose. I build products that don’t just work, they perform and amaze.",
+  "From high-throughput backend systems to pixel-perfect micro-interactions, the result is an elite digital product. Your vision is backed by end-to-end technical excellence from day one."
 ];
 
 export default function StorySection() {

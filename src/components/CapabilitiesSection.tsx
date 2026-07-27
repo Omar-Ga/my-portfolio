@@ -14,25 +14,25 @@ const SERVICES = [
   {
     id: 's1',
     title: 'Digital Strategy',
-    description: 'We align your business goals with technical possibilities, defining the exact roadmap needed to dominate your industry without wasted effort.',
+    description: 'I align your business goals with technical possibilities, defining the exact roadmap needed to scale without wasted effort.',
     image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop'
   },
   {
     id: 's2',
     title: 'Frontend Experience',
-    description: 'Uncompromising user interfaces. We build fluid, high-performance web experiences with WebGL, GSAP, and Next.js that feel native and expensive.',
+    description: 'Uncompromising user interfaces. I build fluid, high-performance web experiences with WebGL, GSAP, and Next.js that feel native, responsive, and premium.',
     image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=1600&auto=format&fit=crop'
   },
   {
     id: 's3',
     title: 'Backend Systems',
-    description: 'Robust, infinitely scalable infrastructure. From serverless microservices to heavy data pipelines, we engineer backends that never bottleneck.',
+    description: 'Robust, scalable infrastructure. From serverless microservices to heavy data pipelines, I engineer backends built for high performance.',
     image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600&auto=format&fit=crop'
   },
   {
     id: 's4',
     title: 'UI/UX Architecture',
-    description: 'We don\u2019t just make it look good. We design psychological flows that guide users exactly where they need to be, minimizing friction and maximizing conversion.',
+    description: 'I don’t just make it look good. I design intuitive user flows that guide visitors seamlessly, minimizing friction and maximizing conversion.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop'
   }
 ];

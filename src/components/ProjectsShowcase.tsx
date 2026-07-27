@@ -203,8 +203,8 @@ export default function ProjectsShowcase() {
         ))}
         {/* The Horizontal Finale */}
         <div className={styles.aboutTeaserPanel}>
-          <h2 className={styles.teaserTitle}>THE PEOPLE<br/>BEHIND THE<br/>WORK.</h2>
-          <p className={styles.teaserSubtitle}>MEET THE FOUNDERS</p>
+          <h2 className={styles.teaserTitle}>THE MIND<br/>BEHIND THE<br/>WORK.</h2>
+          <p className={styles.teaserSubtitle}>SOLO FULL STACK ARCHITECT</p>
           
           {/* The Window Split Animation (Overlay) */}
           <div className={styles.windowContainer}>
@@ -217,8 +217,8 @@ export default function ProjectsShowcase() {
               />
               <div className={styles.overlay}></div>
               <div className={styles.founderInfo}>
-                <p className={styles.founderRole}>The Code</p>
-                <h3 className={styles.founderName} style={{ fontSize: "clamp(2rem, 3.5vw, 4rem)" }}>TECHNICAL<br/>DIRECTION</h3>
+                <p className={styles.founderRole}>The Systems</p>
+                <h3 className={styles.founderName} style={{ fontSize: "clamp(2rem, 3.5vw, 4rem)" }}>FULL STACK<br/>ARCHITECTURE</h3>
               </div>
             </div>
 
@@ -231,8 +231,8 @@ export default function ProjectsShowcase() {
               />
               <div className={styles.overlay}></div>
               <div className={styles.founderInfo}>
-                <p className={styles.founderRole}>The Strategy</p>
-                <h3 className={styles.founderName} style={{ fontSize: "clamp(2rem, 3.5vw, 4rem)" }}>CLIENT<br/>RELATIONS</h3>
+                <p className={styles.founderRole}>The Craft</p>
+                <h3 className={styles.founderName} style={{ fontSize: "clamp(2rem, 3.5vw, 4rem)" }}>CREATIVE<br/>DIRECTION</h3>
               </div>
             </div>
           </div>
