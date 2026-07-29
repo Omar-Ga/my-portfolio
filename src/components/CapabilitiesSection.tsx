@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import RippleCanvas from './RippleCanvas';
+import AudioBlob from './AudioBlob';
 import styles from './CapabilitiesSection.module.css';
 import { WebGLShader } from './ui/web-gl-shader';
 
@@ -15,25 +16,31 @@ const SERVICES = [
     id: 's1',
     title: 'Digital Strategy',
     description: 'I align your business goals with technical possibilities, defining the exact roadmap needed to scale without wasted effort.',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop'
+    image: '/images/services/strategy.webp'
   },
   {
     id: 's2',
     title: 'Frontend Experience',
     description: 'Uncompromising user interfaces. I build fluid, high-performance web experiences with WebGL, GSAP, and Next.js that feel native, responsive, and premium.',
-    image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=1600&auto=format&fit=crop'
+    image: '/images/services/frontend.webp'
   },
   {
     id: 's3',
     title: 'Backend Systems',
     description: 'Robust, scalable infrastructure. From serverless microservices to heavy data pipelines, I engineer backends built for high performance.',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600&auto=format&fit=crop'
+    image: '/images/services/backend.webp'
   },
   {
     id: 's4',
     title: 'UI/UX Architecture',
     description: 'I don’t just make it look good. I design intuitive user flows that guide visitors seamlessly, minimizing friction and maximizing conversion.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop'
+    image: '/images/services/uiux.webp'
+  },
+  {
+    id: 's5',
+    title: "Let's Talk",
+    description: 'Skip the contact form. Ask me anything — my AI knows my stack, my work, and my availability. Press the button and speak.',
+    image: '/images/services/strategy.webp'
   }
 ];
 
@@ -45,6 +52,14 @@ export default function CapabilitiesSection() {
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeImage, setActiveImage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useGSAP(() => {
     if (!sectionRef.current || !listRef.current) return;
@@ -80,9 +95,11 @@ export default function CapabilitiesSection() {
         }
       },
       onUpdate: function() {
-        // Premium 3D Cylinder Math
-        const windowCenter = window.innerHeight / 2;
-        const maxDist = window.innerHeight / 1.5;
+        // Premium 3D Cylinder Math — relative to services list wrapper container
+        const wrapper = listRef.current?.parentElement;
+        const wrapperRect = wrapper ? wrapper.getBoundingClientRect() : { top: 0, height: window.innerHeight };
+        const containerCenter = wrapperRect.top + wrapperRect.height / 2;
+        const maxDist = wrapperRect.height / 1.5;
         
         let minDistance = Infinity;
         let closestIdx = 0;
@@ -91,7 +108,7 @@ export default function CapabilitiesSection() {
           if (!el) return;
           const rect = el.getBoundingClientRect();
           const elCenter = rect.top + rect.height / 2;
-          const dist = elCenter - windowCenter;
+          const dist = elCenter - containerCenter;
           const absDist = Math.abs(dist);
 
           if (absDist < minDistance) {
@@ -120,7 +137,7 @@ export default function CapabilitiesSection() {
           });
         });
 
-        if (minDistance < 40) {
+        if (minDistance < 60) {
           setActiveImage((prev) => {
             if (prev !== closestIdx) return closestIdx;
             return prev;
@@ -140,7 +157,7 @@ export default function CapabilitiesSection() {
 
   return (
     <section className={styles.capabilitiesSection} ref={sectionRef} id="capabilities">
-      <WebGLShader />
+      {!isMobile && <WebGLShader />}
       <div className={styles.capabilitiesContainer} style={{ position: 'relative' }}>
         
         {/* LEFT: Services 3D Wheel */}
@@ -161,12 +178,22 @@ export default function CapabilitiesSection() {
           </div>
         </div>
 
-        {/* RIGHT: WebGL Ripple Canvas */}
+        {/* RIGHT: WebGL Canvas / Audio AI Blob / Mobile Static Image */}
         <div className={styles.visualCanvas}>
-          <RippleCanvas
-            images={SERVICE_IMAGES}
-            activeIndex={activeImage}
-          />
+          {activeImage === 4 ? (
+            <AudioBlob />
+          ) : isMobile ? (
+            <img 
+              src={SERVICE_IMAGES[Math.min(activeImage, 3)]} 
+              alt="Service preview"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px', transition: 'opacity 0.3s ease' }}
+            />
+          ) : (
+            <RippleCanvas
+              images={SERVICE_IMAGES.slice(0, 4)}
+              activeIndex={Math.min(activeImage, 3)}
+            />
+          )}
         </div>
 
       </div>

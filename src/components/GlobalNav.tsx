@@ -35,7 +35,7 @@ export default function GlobalNav() {
     <nav className={`${styles.topNav} gsap-global-nav`} ref={navRef}>
       {[
         { name: "HOME", target: ".gsap-main-hero" },
-        { name: "WORK", target: "#projects" },
+        { name: "PROJECTS", target: "#projects" },
         { name: "SERVICES", target: "#capabilities" },
         { name: "ABOUT", target: "#about" },
         { name: "CONTACT", target: "#contact" },

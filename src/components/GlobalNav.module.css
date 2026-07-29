@@ -13,6 +13,12 @@
   opacity: 0;
 }
 
+@media (max-width: 768px) {
+  .topNav {
+    display: none !important;
+  }
+}
+
 .topNavItem {
   font-family: var(--font-sans);
   font-size: 0.95rem;

@@ -242,4 +242,104 @@
   line-height: 1;
 }
 
+@media (max-width: 768px) {
+  .showcaseWrapper {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .horizontalTrack {
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+  }
+
+  .projectPanel {
+    width: 100%;
+    height: auto;
+    min-height: 100dvh;
+    padding: 70px 1.25rem 40px 1.25rem;
+    gap: 16px;
+  }
+
+  .imageLayout {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: minmax(240px, 40dvh) 75px;
+    gap: 10px;
+    flex: none;
+    height: auto;
+  }
+
+  .posMain { grid-area: 1 / 1 / 2 / 5; }
+  .pos0 { grid-area: 2 / 1 / 3 / 2; }
+  .pos1 { grid-area: 2 / 2 / 3 / 3; }
+  .pos2 { grid-area: 2 / 3 / 3 / 4; }
+  .pos3 { grid-area: 2 / 4 / 3 / 5; }
+
+  .imageSlot {
+    border-radius: 12px;
+  }
+
+  .placeholderCard {
+    border-radius: 12px;
+  }
+
+  .textSection {
+    height: auto;
+    margin-top: 0.5rem;
+  }
+
+  .projectTitle {
+    font-size: clamp(1.8rem, 7vw, 2.8rem);
+  }
+
+  .projectRole {
+    font-size: clamp(0.85rem, 3.5vw, 1.05rem);
+  }
+
+  .projectDescription {
+    font-size: clamp(0.85rem, 3.5vw, 1rem);
+    max-width: 100%;
+  }
+
+  .aboutTeaserPanel {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 60px 1.5rem;
+  }
+
+  .teaserTitle {
+    font-size: clamp(2.5rem, 9vw, 5rem);
+  }
+
+  .teaserSubtitle {
+    font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+  }
+
+  .windowContainer {
+    width: 100vw;
+    height: 100dvh;
+  }
+
+  .windowHalf {
+    width: 50vw;
+    height: 100dvh;
+  }
+
+  .founderInfo {
+    padding: 20px 16px;
+  }
+
+  .founderRole {
+    font-size: 0.8rem;
+  }
+
+  .founderName {
+    font-size: clamp(1.4rem, 4.5vw, 2.5rem) !important;
+  }
+}
+
 

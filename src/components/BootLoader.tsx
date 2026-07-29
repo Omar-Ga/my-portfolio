@@ -22,7 +22,7 @@ export default function BootLoader({ onComplete }: BootLoaderProps) {
     gsap.config({ force3D: true });
 
     const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const skipIntro = true; // Set to false to re-enable intro sequence
+    const skipIntro = false; // Entrance sequence enabled
 
     // If user prefers reduced motion, reveal everything instantly without animation
     if (prefersReducedMotion) {
@@ -55,45 +55,40 @@ export default function BootLoader({ onComplete }: BootLoaderProps) {
     gsap.set(".gsap-subtitle", { autoAlpha: 0, y: 20 });
     gsap.set(".gsap-intro-1, .gsap-intro-2, .gsap-intro-3", { x: -20, opacity: 0 });
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const durMult = isMobile ? 0.7 : 1.0;
+
     const entryTl = gsap.timeline({ 
-      delay: skipIntro ? 0 : 0.3,
+      delay: skipIntro ? 0 : 0.1,
       onComplete: () => {
         document.body.style.overflow = "";
         onComplete();
       }
     });
 
-    // Act 1: Cinematic Text Intro
-    entryTl.addLabel("intro", 0)
-      .to(".gsap-intro-1", { x: 0, scale: 1.02, opacity: 1, duration: 1.5, ease: "power2.out" }, "intro")
-      .to(".gsap-intro-1", { x: 20, scale: 1.05, opacity: 0, duration: 1, ease: "power2.in" })
-      .to(".gsap-intro-2", { x: 0, scale: 1.02, opacity: 1, duration: 1.5, ease: "power2.out" })
-      .to(".gsap-intro-2", { x: 20, scale: 1.05, opacity: 0, duration: 1, ease: "power2.in" })
-      .to(".gsap-intro-3", { x: 0, scale: 1.02, opacity: 1, duration: 1.5, ease: "power2.out" })
-      .to(".gsap-intro-3", { x: 20, scale: 1.05, opacity: 0, duration: 1, ease: "power2.in" })
-      // Fade out overlay and reveal video/hero
-      .addLabel("reveal", ">")
-      .to(".gsap-dark-overlay", { opacity: 0, duration: 1.5 }, "reveal")
-      .to(".gsap-video-bg", { autoAlpha: 1, duration: 1.5 }, "reveal")
-      .to(".gsap-main-hero", { opacity: 1, duration: 1.5 }, "reveal");
+    // Directly fade out overlay and reveal video/hero immediately
+    entryTl.addLabel("reveal", 0)
+      .to(".gsap-dark-overlay", { opacity: 0, duration: 1.0 * durMult }, "reveal")
+      .to(".gsap-video-bg", { autoAlpha: 1, duration: 1.0 * durMult }, "reveal")
+      .to(".gsap-main-hero", { opacity: 1, duration: 1.0 * durMult }, "reveal");
 
     // Act 2: Title Decode — ScrambleText reveals each title line
-    entryTl.addLabel("decode", "reveal+=0.5")
+    entryTl.addLabel("decode", `reveal+=${0.3 * durMult}`)
       .to(".gsap-title-decode", { autoAlpha: 1, duration: 0.01 }, "decode");
 
     const titleLines = gsap.utils.toArray(".gsap-title-decode") as HTMLElement[];
     titleLines.forEach((line, i) => {
       const originalText = line.textContent || "";
       entryTl.to(line, {
-        duration: 2.5,
+        duration: 2.0 * durMult,
         scrambleText: {
           text: originalText,
           chars: "!@#$%^&*<>[]{}=/\\|~`",
-          revealDelay: 0.8,
-          speed: 0.3
+          revealDelay: 0.5 * durMult,
+          speed: 0.4 / durMult
         },
         ease: "none"
-      }, `decode+=${i * 0.4}`);
+      }, `decode+=${i * (0.3 * durMult)}`);
     });
 
     // Show rotating text container alongside decode

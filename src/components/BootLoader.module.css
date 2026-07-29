@@ -28,10 +28,17 @@
 .introText {
   position: absolute;
   font-family: var(--font-serif);
-  font-size: 5vw;
+  font-size: clamp(2rem, 5vw, 4.5rem);
   font-weight: 500;
   color: #fff; /* White text for dark overlay */
   opacity: 0;
   text-align: center;
   will-change: transform, opacity;
+  padding: 0 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .introText {
+    font-size: clamp(1.8rem, 8vw, 3.2rem);
+  }
 }

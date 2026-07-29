@@ -27,11 +27,11 @@ export default function SidebarNav() {
         duration: 1.2,
         ease: "none",
         stagger: {
-          each: 1.7,
+          each: 0.5,
           from: "end"
         },
         repeat: -1,
-        repeatDelay: 2
+        repeatDelay: 1.5
       }
     );
 
@@ -45,7 +45,7 @@ export default function SidebarNav() {
       const bLeft = item.querySelector(".gsap-border-left");
 
       if (orangeText) {
-        hoverTl.to(orangeText, { clipPath: "inset(0 0% 0 0)", duration: 0.4, ease: "power3.out" }, 0);
+        hoverTl.to(orangeText, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "power3.out" }, 0);
       }
 
       if (bTop && bRight && bBottom && bLeft) {
@@ -146,9 +146,10 @@ export default function SidebarNav() {
       <nav className={styles.nav}>
         {[
           { name: "HOME", target: ".gsap-main-hero" },
+          { name: "PROJECTS", target: "#projects" },
+          { name: "SERVICES", target: "#capabilities" },
           { name: "ABOUT", target: "#about" },
           { name: "CONTACT", target: "#contact" },
-          { name: "PLACEHOLDER", target: "#placeholder" },
         ].map((item) => (
           <div 
             key={item.name} 

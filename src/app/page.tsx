@@ -9,6 +9,7 @@ import { useLenis } from 'lenis/react';
 import CustomCursor from "@/components/CustomCursor";
 import BootLoader from "@/components/BootLoader";
 import SidebarNav from "@/components/SidebarNav";
+import MobileNav from "@/components/MobileNav";
 import HeroSection from "@/components/HeroSection";
 import GlobalNav from "@/components/GlobalNav";
 import ProjectsShowcase from "@/components/ProjectsShowcase";
@@ -117,8 +118,9 @@ export default function Home() {
     }
 
     // Global scroll progress bar
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
     gsap.to(".gsap-scroll-progress", {
-      scaleY: 1,
+      [isMobile ? "scaleX" : "scaleY"]: 1,
       ease: "none",
       scrollTrigger: {
         trigger: wrapperRef.current,
@@ -140,6 +142,7 @@ export default function Home() {
     <>
       <div className={`${styles.pageWrapper} gsap-page-wrapper`} ref={wrapperRef}>
         {isLoaded && <GlobalNav />}
+        {isLoaded && <MobileNav />}
         <main className={styles.main} ref={containerRef}>
           
           {/* Light Video Background */}
@@ -150,6 +153,7 @@ export default function Home() {
             muted 
             playsInline
           >
+            <source src="/light_web_mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
             <source src="/light_web.mp4" type="video/mp4" />
           </video>
 

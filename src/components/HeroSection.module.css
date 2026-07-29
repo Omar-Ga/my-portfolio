@@ -5,16 +5,16 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 6rem 6vh 6rem;
+  padding: 0 6rem 6dvh 6rem;
 }
 
 .title {
   font-family: var(--font-serif);
-  font-size: clamp(5rem, 9vw, 7.5rem);
+  font-size: clamp(3.2rem, 9.5vw, 7.5rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
   font-weight: 500;
-  margin-bottom: 4rem;
+  margin-bottom: 3.5rem;
   color: #000;
 }
 
@@ -39,7 +39,7 @@
 
 .subtitle {
   font-family: var(--font-sans);
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
   line-height: 1.4;
   font-weight: 400;
   color: #111;
@@ -169,6 +169,7 @@
   left: 0;
   width: 100%;
   height: 100%;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -187,47 +188,91 @@
 }
 
 .phrase1 {
-  font-size: clamp(6rem, 15vw, 12rem);
+  font-size: clamp(3rem, 10vw, 12rem);
   white-space: nowrap;
-  right: -20%;
+  right: -10%;
   top: 35%;
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
 .phrase2 {
-  font-size: clamp(3rem, 7vw, 6rem);
+  font-size: clamp(2rem, 7vw, 6rem);
   text-align: center;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   letter-spacing: 0.1em;
   font-weight: 300;
+  width: 90%;
 }
 
 .phrase3 {
-  font-size: clamp(4rem, 9vw, 8rem);
+  font-size: clamp(2.2rem, 8vw, 8rem);
   text-align: left;
-  left: 10%;
+  left: 8%;
   top: 40%;
   line-height: 1.1;
+  width: 85%;
 }
 
 .phrase4 {
-  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-size: clamp(2rem, 7.5vw, 7rem);
   text-align: right;
-  right: 10%;
+  right: 8%;
   top: 60%;
   font-style: italic;
   font-weight: 200;
+  width: 85%;
 }
 
 .phrase5 {
-  font-size: clamp(5rem, 10vw, 9rem);
+  font-size: clamp(2.5rem, 9vw, 9rem);
   text-align: center;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   font-weight: bold;
   letter-spacing: -0.02em;
+  width: 90%;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 130px 1.25rem 4dvh 1.25rem;
+    justify-content: flex-start;
+  }
+  .title {
+    font-size: clamp(2.2rem, 11vw, 3.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 2rem;
+    width: 100%;
+    word-break: break-word;
+  }
+  .rotatingItem {
+    white-space: pre-wrap;
+    font-size: clamp(2.1rem, 10vw, 3.6rem);
+  }
+  .bottomSection {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .textContent {
+    max-width: 100%;
+    gap: 1.2rem;
+  }
+  .subtitle {
+    font-size: clamp(1rem, 4.2vw, 1.3rem);
+    line-height: 1.45;
+  }
+  .cta {
+    align-self: stretch;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  .phrase1 {
+    right: -5%;
+  }
 }

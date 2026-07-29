@@ -67,5 +67,8 @@ src/lib/impeccable/[0-9a-f]*/
 .agents/
 AGENTS.md
 agents.md
+.playwright-cli/
+mcp-playwright/
+
 
 

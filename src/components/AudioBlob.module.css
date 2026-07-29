@@ -1,0 +1,177 @@
+.blobContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: radial-gradient(circle at center, rgba(15, 25, 20, 0.95) 0%, rgba(5, 10, 8, 0.98) 100%);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.blobCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.overlayControls {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10;
+  width: 90%;
+  max-width: 450px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #888888;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.statusDotActive {
+  background-color: #22c55e;
+  box-shadow: 0 0 10px #22c55e;
+  animation: pulse 1.5s infinite;
+}
+
+.statusDotSpeaking {
+  background-color: #e11d48;
+  box-shadow: 0 0 10px #e11d48;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.talkButton {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  padding: 0.85rem 2.2rem;
+  border-radius: 2rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+  backdrop-filter: blur(8px);
+}
+
+.talkButton:hover {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #000000;
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+  transform: translateY(-2px);
+}
+
+.talkButtonActive {
+  background: rgba(225, 29, 72, 0.2);
+  border-color: #e11d48;
+  color: #ffffff;
+}
+
+.talkButtonActive:hover {
+  background: #e11d48;
+  border-color: #e11d48;
+  color: #ffffff;
+  box-shadow: 0 0 25px rgba(225, 29, 72, 0.4);
+}
+
+.transcriptBox {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  right: 2rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-height: 120px;
+  overflow-y: auto;
+  pointer-events: none;
+}
+
+.transcriptRole {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #22c55e;
+  margin-bottom: 0.25rem;
+}
+
+.transcriptAiRole {
+  color: #f43f5e;
+}
+
+.textInputRow {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.textInput {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.5rem;
+  padding: 0.6rem 1.2rem;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.textInput:focus {
+  border-color: #22c55e;
+}
+
+.sendButton {
+  background: #22c55e;
+  color: #000000;
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+}

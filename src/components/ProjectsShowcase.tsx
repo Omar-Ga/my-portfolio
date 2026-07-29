@@ -143,56 +143,80 @@ export default function ProjectsShowcase() {
     const track = trackRef.current;
     if (!track || !leftHalfRef.current || !rightHalfRef.current) return;
 
-    // Functions for dynamic dimensions on refresh / resize
-    const getInitialHoldDist = () => window.innerHeight * 0.20;
-    const getHorizontalDist = () => track.scrollWidth - window.innerWidth;
-    const getVerticalDist = () => window.innerHeight * 1.5;
-    const getHoldDist = () => window.innerHeight * 0.4;
+    const mm = gsap.matchMedia();
 
-    // Initial state for window halves
-    gsap.set(leftHalfRef.current, { xPercent: -100 });
-    gsap.set(rightHalfRef.current, { xPercent: 100 });
-    
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        id: "showcase-st",
-        trigger: sectionRef.current,
-        pin: true,
-        scrub: 1, // Smooth scrubbing
-        invalidateOnRefresh: true, // Recalculate on window resize / display scaling
-        // Total scroll distance is initial hold + horizontal scroll + vertical window close + hold
-        end: () => "+=" + (getInitialHoldDist() + getHorizontalDist() + getVerticalDist() + getHoldDist())
+    // Desktop: Horizontal Pinning & Track Scroll
+    mm.add("(min-width: 769px)", () => {
+      const getInitialHoldDist = () => window.innerHeight * 0.20;
+      const getHorizontalDist = () => track.scrollWidth - window.innerWidth;
+      const getVerticalDist = () => window.innerHeight * 1.5;
+      const getHoldDist = () => window.innerHeight * 0.4;
+
+      gsap.set(leftHalfRef.current, { xPercent: -100 });
+      gsap.set(rightHalfRef.current, { xPercent: 100 });
+      
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          id: "showcase-st",
+          trigger: sectionRef.current,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+          end: () => "+=" + (getInitialHoldDist() + getHorizontalDist() + getVerticalDist() + getHoldDist())
+        }
+      });
+
+      tl.to({}, { duration: () => getInitialHoldDist() });
+
+      tl.to(track, {
+        x: () => -getHorizontalDist(),
+        ease: "none",
+        duration: () => getHorizontalDist()
+      });
+
+      tl.addLabel("aboutPanel");
+
+      tl.to(leftHalfRef.current, { 
+        xPercent: 0, 
+        ease: "none", 
+        duration: () => getVerticalDist() 
+      }, "aboutPanel")
+      .to(rightHalfRef.current, { 
+        xPercent: 0, 
+        ease: "none", 
+        duration: () => getVerticalDist() 
+      }, "aboutPanel");
+
+      tl.to({}, { duration: () => getHoldDist() });
+    });
+
+    // Mobile: Vertical Scroll with Pinned Window Reveal on About Teaser
+    mm.add("(max-width: 768px)", () => {
+      gsap.set(leftHalfRef.current, { xPercent: -100 });
+      gsap.set(rightHalfRef.current, { xPercent: 100 });
+
+      const teaserEl = sectionRef.current?.querySelector(`.${styles.aboutTeaserPanel}`);
+      if (teaserEl) {
+        const mobileTl = gsap.timeline({
+          scrollTrigger: {
+            id: "showcase-st",
+            trigger: teaserEl,
+            pin: true,
+            start: "top top",
+            end: "+=120%",
+            scrub: 1,
+            invalidateOnRefresh: true
+          }
+        });
+
+        mobileTl.addLabel("aboutPanel");
+
+        mobileTl.to(leftHalfRef.current, { xPercent: 0, ease: "none" }, "aboutPanel")
+                .to(rightHalfRef.current, { xPercent: 0, ease: "none" }, "aboutPanel");
       }
     });
 
-    // 1. Initial Hold (leeway for first project to settle before horizontal scrolling)
-    tl.to({}, { duration: () => getInitialHoldDist() });
-
-    // 2. Horizontal Scroll (duration corresponds to physical scroll pixels)
-    tl.to(track, {
-      x: () => -getHorizontalDist(),
-      ease: "none",
-      duration: () => getHorizontalDist()
-    });
-
-    // 3. Add Label so nav can jump exactly to the end of horizontal scroll
-    tl.addLabel("aboutPanel");
-
-    // 4. Window Close Animation (starts immediately after horizontal scroll)
-    tl.to(leftHalfRef.current, { 
-      xPercent: 0, 
-      ease: "none", 
-      duration: () => getVerticalDist() 
-    }, "aboutPanel")
-    .to(rightHalfRef.current, { 
-      xPercent: 0, 
-      ease: "none", 
-      duration: () => getVerticalDist() 
-    }, "aboutPanel");
-
-    // 5. Hold the closed state
-    tl.to({}, { duration: () => getHoldDist() });
-
+    return () => mm.revert();
   }, { scope: sectionRef });
 
   return (

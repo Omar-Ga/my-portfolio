@@ -51,6 +51,8 @@ export default function StorySection() {
         muted 
         playsInline
       >
+        <source src="/story_bg_mobile.webm" type="video/webm" media="(max-width: 768px)" />
+        <source src="/story_bg_mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
         <source src="/story_bg.webm" type="video/webm" />
         <source src="/story_bg.mp4" type="video/mp4" />
       </video>

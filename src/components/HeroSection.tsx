@@ -157,14 +157,18 @@ export default function HeroSection() {
     // Act 3: Typography Bespoke Flythrough (30% - 90%)
     
     // Phrase 1: Marquee across the screen (30% to 45%)
-    gsap.set(".gsap-phrase-1", { xPercent: 150, autoAlpha: 0 });
+    const isMobileViewport = typeof window !== "undefined" && window.innerWidth <= 768;
+    const phrase1StartX = isMobileViewport ? 100 : 150;
+    const phrase1EndX = isMobileViewport ? -100 : -150;
+
+    gsap.set(".gsap-phrase-1", { xPercent: phrase1StartX, autoAlpha: 0 });
     
     // Quick fade in right before it slides into view
     scrollTl.to(".gsap-phrase-1", { autoAlpha: 1, duration: 0.01 }, 0.29);
     
     scrollTl.fromTo(".gsap-phrase-1",
-      { xPercent: 150 },
-      { xPercent: -150, duration: 0.15, ease: "none", immediateRender: false },
+      { xPercent: phrase1StartX },
+      { xPercent: phrase1EndX, duration: 0.15, ease: "none", immediateRender: false },
       0.30
     );
 
