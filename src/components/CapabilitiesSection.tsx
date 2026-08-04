@@ -52,32 +52,42 @@ export default function CapabilitiesSection() {
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeImage, setActiveImage] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth <= 768);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
+    let timer: NodeJS.Timeout;
+    const checkMobile = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIsMobile(window.innerWidth <= 768);
+      }, 150);
+    };
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   useGSAP(() => {
     if (!sectionRef.current || !listRef.current) return;
     
-    const texts = textRefs.current.filter(Boolean);
+    const texts = textRefs.current.filter(Boolean) as HTMLDivElement[];
     if (texts.length === 0) return;
 
-    // Calculate scroll distances
-    const listScrollHeight = listRef.current.scrollHeight;
-    const viewportHeight = window.innerHeight;
-    const windowCenter = viewportHeight / 2;
-    const maxScrollY = listScrollHeight - viewportHeight;
+    // Pre-calculate container & item dimensions ONCE to avoid DOM reading during scroll
+    const wrapper = listRef.current.parentElement;
+    const wrapperHeight = wrapper ? wrapper.offsetHeight : window.innerHeight;
+    const containerCenter = wrapperHeight / 2;
+    const maxDist = wrapperHeight / 1.5;
 
-    // Calculate EXACT snap points for the physical center of each item
-    const snapPoints = (texts as HTMLDivElement[]).map((el) => {
-      const itemCenterY = el.offsetTop + el.offsetHeight / 2;
-      const targetY = windowCenter - itemCenterY;
-      const progress = -targetY / maxScrollY;
+    const itemCenters = texts.map(el => el.offsetTop + el.offsetHeight / 2);
+    const listScrollHeight = listRef.current.scrollHeight;
+    const maxScrollY = listScrollHeight - wrapperHeight;
+
+    const snapPoints = itemCenters.map((itemCenterY) => {
+      const targetY = containerCenter - itemCenterY;
+      const progress = -targetY / Math.max(1, maxScrollY);
       return Math.max(0, Math.min(1, progress));
     });
 
@@ -86,62 +96,54 @@ export default function CapabilitiesSection() {
         trigger: sectionRef.current,
         pin: true,
         start: "top top",
-        end: `+=${SERVICES.length * 200}%`, // Reduced by ~20% to slightly increase scroll speed
-        scrub: 0.7, // Tightened scrub slightly for faster response
+        end: `+=${SERVICES.length * 200}%`,
+        scrub: 0.7,
+        refreshPriority: 1,
+        invalidateOnRefresh: true,
         snap: {
           snapTo: snapPoints,
           duration: { min: 0.3, max: 0.8 },
           ease: "power2.inOut"
-        }
-      },
-      onUpdate: function() {
-        // Premium 3D Cylinder Math — relative to services list wrapper container
-        const wrapper = listRef.current?.parentElement;
-        const wrapperRect = wrapper ? wrapper.getBoundingClientRect() : { top: 0, height: window.innerHeight };
-        const containerCenter = wrapperRect.top + wrapperRect.height / 2;
-        const maxDist = wrapperRect.height / 1.5;
-        
-        let minDistance = Infinity;
-        let closestIdx = 0;
+        },
+        onUpdate: function(self) {
+          // Pure math calculations without reading live DOM layout
+          const currentY = -maxScrollY * self.progress;
+          let minDistance = Infinity;
+          let closestIdx = 0;
 
-        texts.forEach((el, i) => {
-          if (!el) return;
-          const rect = el.getBoundingClientRect();
-          const elCenter = rect.top + rect.height / 2;
-          const dist = elCenter - containerCenter;
-          const absDist = Math.abs(dist);
+          itemCenters.forEach((itemCenterY, i) => {
+            const el = texts[i];
+            if (!el) return;
 
-          if (absDist < minDistance) {
-            minDistance = absDist;
-            closestIdx = i;
+            // elCenter relative to wrapper top = itemCenterY + currentY
+            const dist = (itemCenterY + currentY) - containerCenter;
+            const absDist = Math.abs(dist);
+
+            if (absDist < minDistance) {
+              minDistance = absDist;
+              closestIdx = i;
+            }
+
+            const normalizedDist = Math.max(0, Math.min(1, absDist / maxDist));
+            const curve = Math.pow(normalizedDist, 1.5);
+            
+            const scale = 1 - (curve * 0.3);
+            const opacity = 1 - (curve * 1.0);
+            const rotateX = (dist / maxDist) * -45;
+            const z = curve * -50;
+
+            gsap.set(el, {
+              scale,
+              opacity,
+              rotateX,
+              z,
+              transformOrigin: "center center -80px"
+            });
+          });
+
+          if (minDistance < 60) {
+            setActiveImage((prev) => (prev !== closestIdx ? closestIdx : prev));
           }
-
-          const normalizedDist = Math.max(0, Math.min(1, absDist / maxDist));
-          
-          // Easing curve: keeps the center item flat longer, sharply curves at the edges
-          const curve = Math.pow(normalizedDist, 1.5);
-          
-          const scale = 1 - (curve * 0.3);
-          const opacity = 1 - (curve * 1.0);
-          
-          // Re-introduce Z-depth but driven by the smooth curve so it doesn't mess up center spacing
-          const rotateX = (dist / maxDist) * -90; // Balanced rotation angle
-          const z = curve * -100; // Decreased pushback to prevent massive visual gaps
-
-          gsap.set(el, {
-            scale,
-            opacity,
-            rotateX,
-            z,
-            transformOrigin: "center center -150px" // Decreased cylinder radius to pack items closer
-          });
-        });
-
-        if (minDistance < 60) {
-          setActiveImage((prev) => {
-            if (prev !== closestIdx) return closestIdx;
-            return prev;
-          });
         }
       }
     });
@@ -184,7 +186,7 @@ export default function CapabilitiesSection() {
             <AudioBlob />
           ) : isMobile ? (
             <img 
-              src={SERVICE_IMAGES[Math.min(activeImage, 3)]} 
+              src={SERVICE_IMAGES[Math.min(activeImage, 3)].replace(/\.webp$/, '_mobile.webp')} 
               alt="Service preview"
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px', transition: 'opacity 0.3s ease' }}
             />

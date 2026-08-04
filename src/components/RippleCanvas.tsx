@@ -239,9 +239,10 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
     if (!canvas) return;
 
     let alive = true;
+    let isIntersecting = true;
 
     const init = async () => {
-      const dpr  = window.devicePixelRatio || 1;
+      const dpr  = Math.min(window.devicePixelRatio || 1, 2);
       const rect = canvas.parentElement!.getBoundingClientRect();
       canvas.width  = rect.width  * dpr;
       canvas.height = rect.height * dpr;
@@ -290,10 +291,12 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
 
       const tick = () => {
         if (!s.alive) return;
-        if (s.mouseOn) addDrop(s, s.mouseU, s.mouseV, DROP_R, DROP_STR);
-        simStep(s);
-        uploadRipple(s);
-        render(s, canvas);
+        if (isIntersecting) {
+          if (s.mouseOn) addDrop(s, s.mouseU, s.mouseV, DROP_R, DROP_STR);
+          simStep(s);
+          uploadRipple(s);
+          render(s, canvas);
+        }
         s.raf = requestAnimationFrame(tick);
       };
       s.raf = requestAnimationFrame(tick);
@@ -301,10 +304,15 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
 
     init();
 
+    const io = new IntersectionObserver(([entry]) => {
+      isIntersecting = entry.isIntersecting;
+    }, { threshold: 0.05 });
+    io.observe(canvas);
+
     const ro = new ResizeObserver(entries => {
       for (const e of entries) {
         const { width, height } = e.contentRect;
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width  = width  * dpr;
         canvas.height = height * dpr;
       }
@@ -313,6 +321,7 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
 
     return () => {
       alive = false;
+      io.disconnect();
       const s = stateRef.current;
       if (s) {
         s.alive = false;
@@ -343,13 +352,22 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
     gsap.to(s.blend, { value: 1, duration: 0.8, ease: 'power2.out' });
   }, [activeIndex]);
 
-  /* ---- mouse handlers ---- */
+  /* ---- pointer / touch / mouse handlers ---- */
   const onMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const s = stateRef.current;
     if (!s) return;
     const r = canvasRef.current!.getBoundingClientRect();
     s.mouseU  = (e.clientX - r.left) / r.width;
     s.mouseV  = 1 - (e.clientY - r.top) / r.height;
+    s.mouseOn = true;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent<HTMLCanvasElement>) => {
+    const s = stateRef.current;
+    if (!s || !e.touches[0]) return;
+    const r = canvasRef.current!.getBoundingClientRect();
+    s.mouseU  = (e.touches[0].clientX - r.left) / r.width;
+    s.mouseV  = 1 - (e.touches[0].clientY - r.top) / r.height;
     s.mouseOn = true;
   }, []);
 
@@ -363,6 +381,9 @@ export default function RippleCanvas({ images, activeIndex, className }: Props) 
       className={className}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
+      onTouchStart={onTouchMove}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onLeave}
       style={{ width: '100%', height: '100%', display: 'block' }}
     />
   );

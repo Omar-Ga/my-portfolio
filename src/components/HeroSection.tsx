@@ -104,12 +104,14 @@ export default function HeroSection() {
         ctaTl.reverse();
       });
 
-      ctaBtn.addEventListener("mouseenter", onCtaEnter);
-      ctaBtn.addEventListener("mouseleave", onCtaLeave);
+      ctaBtn.addEventListener("pointerenter", onCtaEnter);
+      ctaBtn.addEventListener("pointerleave", onCtaLeave);
+      ctaBtn.addEventListener("touchend", onCtaLeave);
 
       ctaCleanup = () => {
-        ctaBtn.removeEventListener("mouseenter", onCtaEnter);
-        ctaBtn.removeEventListener("mouseleave", onCtaLeave);
+        ctaBtn.removeEventListener("pointerenter", onCtaEnter);
+        ctaBtn.removeEventListener("pointerleave", onCtaLeave);
+        ctaBtn.removeEventListener("touchend", onCtaLeave);
         ctaTl.kill();
       };
     }
@@ -121,6 +123,8 @@ export default function HeroSection() {
         start: "top top",
         end: "bottom bottom",
         scrub: 1,
+        invalidateOnRefresh: true,
+        refreshPriority: 10,
       }
     });
 
@@ -157,52 +161,51 @@ export default function HeroSection() {
     // Act 3: Typography Bespoke Flythrough (30% - 90%)
     
     // Phrase 1: Marquee across the screen (30% to 45%)
-    const isMobileViewport = typeof window !== "undefined" && window.innerWidth <= 768;
-    const phrase1StartX = isMobileViewport ? 100 : 150;
-    const phrase1EndX = isMobileViewport ? -100 : -150;
+    const getPhrase1StartX = () => (window.innerWidth <= 768 ? 100 : 150);
+    const getPhrase1EndX = () => (window.innerWidth <= 768 ? -100 : -150);
 
-    gsap.set(".gsap-phrase-1", { xPercent: phrase1StartX, autoAlpha: 0 });
+    gsap.set(".gsap-phrase-1", { xPercent: getPhrase1StartX(), autoAlpha: 0 });
     
     // Quick fade in right before it slides into view
     scrollTl.to(".gsap-phrase-1", { autoAlpha: 1, duration: 0.01 }, 0.29);
     
     scrollTl.fromTo(".gsap-phrase-1",
-      { xPercent: phrase1StartX },
-      { xPercent: phrase1EndX, duration: 0.15, ease: "none", immediateRender: false },
+      { xPercent: () => getPhrase1StartX() },
+      { xPercent: () => getPhrase1EndX(), duration: 0.15, ease: "none", immediateRender: false },
       0.30
     );
 
     // Quick fade out after it leaves
     scrollTl.to(".gsap-phrase-1", { autoAlpha: 0, duration: 0.01 }, 0.45);
 
-    // Phrase 2: Sleek fade up with letter spacing (43% to 55%)
-    gsap.set(".gsap-phrase-2", { y: 50, autoAlpha: 0, letterSpacing: "0em" });
+    // Phrase 2: Sleek fade up with transform scale (43% to 55%) - avoid letterSpacing layout thrashing!
+    gsap.set(".gsap-phrase-2", { y: 50, autoAlpha: 0, scale: 0.95 });
     scrollTl.fromTo(".gsap-phrase-2",
-      { y: 50, autoAlpha: 0, letterSpacing: "0em" },
-      { y: -20, autoAlpha: 1, letterSpacing: "0.15em", duration: 0.08, ease: "power2.out", immediateRender: false },
+      { y: 50, autoAlpha: 0, scale: 0.95 },
+      { y: -20, autoAlpha: 1, scale: 1.05, duration: 0.08, ease: "power2.out", immediateRender: false },
       0.43
     ).to(".gsap-phrase-2", {
-      y: -50, autoAlpha: 0, duration: 0.04, ease: "power2.in"
+      y: -50, autoAlpha: 0, scale: 1.1, duration: 0.04, ease: "power2.in"
     }, 0.51);
 
-    // Phrase 3: Clip-path reveal from left (53% to 65%)
-    gsap.set(".gsap-phrase-3", { clipPath: "inset(0 100% 0 0)", autoAlpha: 1, x: -30 });
+    // Phrase 3: Slide-in reveal from left (53% to 65%) - using xPercent for performance
+    gsap.set(".gsap-phrase-3", { xPercent: -100, autoAlpha: 0 });
     scrollTl.fromTo(".gsap-phrase-3",
-      { clipPath: "inset(0 100% 0 0)", x: -30 },
-      { clipPath: "inset(0 0% 0 0)", x: 0, duration: 0.08, ease: "power3.inOut", immediateRender: false },
+      { xPercent: -100, autoAlpha: 0 },
+      { xPercent: 0, autoAlpha: 1, duration: 0.08, ease: "power3.inOut", immediateRender: false },
       0.53
     ).to(".gsap-phrase-3", {
-      autoAlpha: 0, x: 30, duration: 0.04, ease: "power2.in"
+      xPercent: 100, autoAlpha: 0, duration: 0.04, ease: "power2.in"
     }, 0.61);
 
-    // Phrase 4: Blur focus pull (63% to 75%)
-    gsap.set(".gsap-phrase-4", { filter: "blur(20px)", autoAlpha: 0, scale: 1.2 });
+    // Phrase 4: Scale and opacity fade (63% to 75%) - avoid blur filter re-rasterization
+    gsap.set(".gsap-phrase-4", { autoAlpha: 0, scale: 1.2 });
     scrollTl.fromTo(".gsap-phrase-4",
-      { filter: "blur(20px)", autoAlpha: 0, scale: 1.2 },
-      { filter: "blur(0px)", autoAlpha: 1, scale: 1, duration: 0.08, ease: "power2.out", immediateRender: false },
+      { autoAlpha: 0, scale: 1.2 },
+      { autoAlpha: 1, scale: 1, duration: 0.08, ease: "power2.out", immediateRender: false },
       0.63
     ).to(".gsap-phrase-4", {
-      filter: "blur(20px)", autoAlpha: 0, scale: 0.8, duration: 0.04, ease: "power2.in"
+      autoAlpha: 0, scale: 0.8, duration: 0.04, ease: "power2.in"
     }, 0.71);
 
     // Phrase 5: Slam into center and hold (75% to 90%)
@@ -283,10 +286,12 @@ export default function HeroSection() {
             <button 
               className={`${styles.cta} gsap-cta`}
               onClick={() => {
-                if (lenis) {
-                  const targetEl = document.querySelector("#projects") as HTMLElement;
-                  if (targetEl) {
+                const targetEl = document.querySelector("#projects") as HTMLElement;
+                if (targetEl) {
+                  if (lenis) {
                     lenis.scrollTo(targetEl, { duration: 1.5 });
+                  } else {
+                    targetEl.scrollIntoView({ behavior: "smooth" });
                   }
                 }
               }}

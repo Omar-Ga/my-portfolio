@@ -61,10 +61,16 @@ export function WebGLShader() {
       }
     `
 
+    let isVisible = true
+    const io = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting
+    }, { threshold: 0.05 })
+    io.observe(canvas)
+
     const initScene = () => {
       refs.scene = new THREE.Scene()
       refs.renderer = new THREE.WebGLRenderer({ canvas, alpha: true })
-      refs.renderer.setPixelRatio(window.devicePixelRatio)
+      refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       // Set to white background
       refs.renderer.setClearColor(new THREE.Color(0xffffff))
 
@@ -105,13 +111,16 @@ export function WebGLShader() {
     }
 
     const animate = () => {
-      if (refs.uniforms) refs.uniforms.time.value += 0.01
-      if (refs.renderer && refs.scene && refs.camera) {
-        refs.renderer.render(refs.scene, refs.camera)
+      if (isVisible) {
+        if (refs.uniforms) refs.uniforms.time.value += 0.01
+        if (refs.renderer && refs.scene && refs.camera) {
+          refs.renderer.render(refs.scene, refs.camera)
+        }
       }
       refs.animationId = requestAnimationFrame(animate)
     }
 
+    let resizeTimer: NodeJS.Timeout
     const handleResize = () => {
       if (!refs.renderer || !refs.uniforms) return
       const width = window.innerWidth
@@ -120,13 +129,20 @@ export function WebGLShader() {
       refs.uniforms.resolution.value = [width, height]
     }
 
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(handleResize, 150)
+    }
+
     initScene()
     animate()
-    window.addEventListener("resize", handleResize)
+    window.addEventListener("resize", debouncedResize)
 
     return () => {
+      io.disconnect()
+      clearTimeout(resizeTimer)
       if (refs.animationId) cancelAnimationFrame(refs.animationId)
-      window.removeEventListener("resize", handleResize)
+      window.removeEventListener("resize", debouncedResize)
       if (refs.mesh) {
         refs.scene?.remove(refs.mesh)
         refs.mesh.geometry.dispose()

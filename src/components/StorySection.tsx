@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import styles from '@/app/page.module.css';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const paragraphs = [
   "I operate on a dual-pillar discipline, coupling deep, scalable backend architecture with fluid, high-converting frontend interfaces. When you work with me, you get direct senior-level engineering craftsmanship without agency overhead or middle-management bloat.",
@@ -16,6 +16,46 @@ const paragraphs = [
 
 export default function StorySection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const videoEl = videoRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoadVideo(true);
+            if (videoEl && videoEl.readyState >= 2) {
+              videoEl.play().catch(() => {});
+            }
+          } else {
+            if (videoEl) {
+              videoEl.pause();
+            }
+          }
+        });
+      },
+      { rootMargin: "300px 0px" }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  useGSAP(() => {
+    if (isVideoLoaded && videoRef.current) {
+      gsap.fromTo(
+        videoRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, ease: "power2.out", force3D: true }
+      );
+    }
+  }, [isVideoLoaded]);
 
   useGSAP(() => {
     // Select all the word spans
@@ -37,6 +77,8 @@ export default function StorySection() {
         start: "top top",
         end: "+=150%",
         scrub: 0.5,
+        refreshPriority: 3,
+        invalidateOnRefresh: true,
       }
     });
 
@@ -45,16 +87,27 @@ export default function StorySection() {
   return (
     <section className={styles.storySection} id="about" ref={containerRef}>
       <video 
+        ref={videoRef}
         className={styles.storyVideo} 
-        autoPlay 
         loop 
         muted 
         playsInline
+        style={{ opacity: isVideoLoaded ? 1 : 0 }}
+        onLoadedData={() => {
+          setIsVideoLoaded(true);
+          if (videoRef.current) {
+            videoRef.current.play().catch(() => {});
+          }
+        }}
       >
-        <source src="/story_bg_mobile.webm" type="video/webm" media="(max-width: 768px)" />
-        <source src="/story_bg_mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
-        <source src="/story_bg.webm" type="video/webm" />
-        <source src="/story_bg.mp4" type="video/mp4" />
+        {shouldLoadVideo && (
+          <>
+            <source src="/story_bg_mobile.webm" type="video/webm" media="(max-width: 768px)" />
+            <source src="/story_bg_mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
+            <source src="/story_bg.webm" type="video/webm" />
+            <source src="/story_bg.mp4" type="video/mp4" />
+          </>
+        )}
       </video>
       <div className={styles.storyContainer}>
         <h2 className={styles.storyHeadline}>PREMIUM EXECUTION.<br/>NO COMPROMISES.</h2>

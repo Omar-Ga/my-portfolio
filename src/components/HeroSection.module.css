@@ -182,7 +182,6 @@
   position: absolute;
   font-family: var(--font-serif);
   color: #fff;
-  will-change: transform, opacity, filter, clip-path;
   opacity: 0;
   pointer-events: none;
 }

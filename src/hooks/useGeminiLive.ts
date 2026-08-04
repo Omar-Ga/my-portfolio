@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export type LiveStatus = 'idle' | 'connecting' | 'listening' | 'processing' | 'speaking' | 'error';
 
@@ -30,7 +30,9 @@ export function useGeminiLive(): GeminiLiveHook {
   const playbackWorkletRef = useRef<AudioWorkletNode | null>(null);
 
   const statusRef = useRef<LiveStatus>('idle');
-  statusRef.current = status;
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   // Calculate audio amplitude directly from AnalyserNodes without React state re-renders
   const getAudioAmp = useCallback(() => {

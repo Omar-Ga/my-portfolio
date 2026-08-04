@@ -72,13 +72,12 @@ p {
   }
 }
 
-/* GSAP Performance Optimizations */
+/* GSAP Performance Optimizations — GPU layers only during animation */
 .gsap-intro-1, .gsap-intro-2, .gsap-intro-3,
 .gsap-dark-overlay,
 .gsap-main-hero,
 .gsap-main-elem,
 .gsap-rotating-item {
-  will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0); /* Force GPU Layer */
 }

@@ -87,7 +87,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.25s ease-out;
+  transition: background-color 0.25s ease-out, border-color 0.25s ease-out, color 0.25s ease-out, box-shadow 0.25s ease-out, transform 0.25s ease-out;
   backdrop-filter: blur(8px);
 }
 
@@ -174,4 +174,31 @@
   padding: 0.6rem 1.2rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .overlayControls {
+    bottom: 1rem;
+    width: 92%;
+    gap: 0.75rem;
+  }
+
+  .statusPill {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .talkButton {
+    padding: 0.7rem 1.8rem;
+    font-size: 0.85rem;
+  }
+
+  .transcriptBox {
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    max-height: 90px;
+  }
 }

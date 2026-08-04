@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import styles from './ContactOverlay.module.css';
@@ -14,11 +14,19 @@ export default function ContactOverlay({ isOpen, onClose }: ContactOverlayProps)
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   useGSAP(() => {
     if (!overlayRef.current) return;
 
     if (isOpen) {
+      setShouldLoadVideo(true);
+      if (videoRef.current && videoRef.current.readyState >= 2) {
+        videoRef.current.play().catch(() => {});
+      }
+
       // Fade in the transparent overlay container
       gsap.to(overlayRef.current, {
         autoAlpha: 1, // handles opacity and visibility
@@ -39,6 +47,10 @@ export default function ContactOverlay({ isOpen, onClose }: ContactOverlayProps)
         }
       );
     } else {
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+
       // Retract the contact form
       gsap.to([closeBtnRef.current, contentRef.current], {
         opacity: 0,
@@ -56,19 +68,38 @@ export default function ContactOverlay({ isOpen, onClose }: ContactOverlayProps)
     }
   }, [isOpen]);
 
+  useGSAP(() => {
+    if (isVideoLoaded && videoRef.current) {
+      gsap.fromTo(
+        videoRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, ease: "power2.out", force3D: true }
+      );
+    }
+  }, [isVideoLoaded]);
+
   return (
     <section 
       className={`${styles.overlayWrapper} ${isOpen ? styles.active : ''}`}
       ref={overlayRef}
     >
       <video
+        ref={videoRef}
         className={styles.videoBackground}
-        autoPlay
         loop
         muted
         playsInline
+        style={{ opacity: isVideoLoaded ? 1 : 0 }}
+        onLoadedData={() => {
+          setIsVideoLoaded(true);
+          if (videoRef.current) {
+            videoRef.current.play().catch(() => {});
+          }
+        }}
       >
-        <source src="/dark_cropped.webm" type="video/webm" />
+        {shouldLoadVideo && (
+          <source src="/dark_cropped.webm" type="video/webm" />
+        )}
       </video>
 
       <div className={styles.contentContainer}>

@@ -62,6 +62,25 @@ export default function GlobalNav() {
                   lenis.scrollTo(targetEl, { duration: 1.5 });
                 }
               }
+            } else {
+              if (item.name === "ABOUT") {
+                const st = ScrollTrigger.getById("showcase-st");
+                if (st && st.animation) {
+                  const progress = (st.animation as gsap.core.Timeline).labels["aboutPanel"] / st.animation.duration();
+                  const scrollPos = st.start + (st.end - st.start) * progress;
+                  window.scrollTo({ top: scrollPos, behavior: "smooth" });
+                } else {
+                  const aboutEl = document.querySelector("#about") as HTMLElement;
+                  if (aboutEl) aboutEl.scrollIntoView({ behavior: "smooth" });
+                }
+              } else if (item.target === ".gsap-main-hero") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                const targetEl = document.querySelector(item.target) as HTMLElement;
+                if (targetEl) {
+                  targetEl.scrollIntoView({ behavior: "smooth" });
+                }
+              }
             }
           }}
         >

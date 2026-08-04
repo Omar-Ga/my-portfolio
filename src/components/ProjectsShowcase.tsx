@@ -105,16 +105,19 @@ const ProjectPanel = ({ project }: { project: typeof PROJECTS[0] }) => {
             data-flip-id={`img-${project.id}-${i}`}
           >
             {url ? (
-              <img 
-                src={url}
-                className={styles.projectImage}
-                alt={`Project screenshot ${i}`}
-                onLoad={() => {
-                  if (typeof window !== "undefined") {
-                    ScrollTrigger.refresh();
-                  }
-                }}
-              />
+              <picture style={{ width: '100%', height: '100%', display: 'block' }}>
+                <source media="(max-width: 768px)" srcSet={url.replace(/\.webp$/, "_mobile.webp")} />
+                <img 
+                  src={url}
+                  className={styles.projectImage}
+                  alt={`Project screenshot ${i}`}
+                  onLoad={() => {
+                    if (typeof window !== "undefined") {
+                      ScrollTrigger.refresh();
+                    }
+                  }}
+                />
+              </picture>
             ) : (
               <div className={styles.placeholderCard}>
                 <span className={styles.placeholderLabel}>Frame {i + 1}</span>
@@ -152,8 +155,8 @@ export default function ProjectsShowcase() {
       const getVerticalDist = () => window.innerHeight * 1.5;
       const getHoldDist = () => window.innerHeight * 0.4;
 
-      gsap.set(leftHalfRef.current, { xPercent: -100 });
-      gsap.set(rightHalfRef.current, { xPercent: 100 });
+      gsap.set(leftHalfRef.current, { xPercent: -100, yPercent: 0 });
+      gsap.set(rightHalfRef.current, { xPercent: 100, yPercent: 0 });
       
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -162,6 +165,7 @@ export default function ProjectsShowcase() {
           pin: true,
           scrub: 1,
           invalidateOnRefresh: true,
+          refreshPriority: 5,
           end: () => "+=" + (getInitialHoldDist() + getHorizontalDist() + getVerticalDist() + getHoldDist())
         }
       });
@@ -190,10 +194,10 @@ export default function ProjectsShowcase() {
       tl.to({}, { duration: () => getHoldDist() });
     });
 
-    // Mobile: Vertical Scroll with Pinned Window Reveal on About Teaser
+    // Mobile: Vertical Scroll with Pinned Window Reveal on About Teaser (Top & Bottom Doors)
     mm.add("(max-width: 768px)", () => {
-      gsap.set(leftHalfRef.current, { xPercent: -100 });
-      gsap.set(rightHalfRef.current, { xPercent: 100 });
+      gsap.set(leftHalfRef.current, { xPercent: 0, yPercent: -100, force3D: true });
+      gsap.set(rightHalfRef.current, { xPercent: 0, yPercent: 100, force3D: true });
 
       const teaserEl = sectionRef.current?.querySelector(`.${styles.aboutTeaserPanel}`);
       if (teaserEl) {
@@ -203,16 +207,18 @@ export default function ProjectsShowcase() {
             trigger: teaserEl,
             pin: true,
             start: "top top",
-            end: "+=120%",
+            end: "+=150%",
             scrub: 1,
-            invalidateOnRefresh: true
+            invalidateOnRefresh: true,
+            refreshPriority: 5
           }
         });
 
         mobileTl.addLabel("aboutPanel");
 
-        mobileTl.to(leftHalfRef.current, { xPercent: 0, ease: "none" }, "aboutPanel")
-                .to(rightHalfRef.current, { xPercent: 0, ease: "none" }, "aboutPanel");
+        mobileTl.to(leftHalfRef.current, { yPercent: 0, ease: "none", duration: 1 }, "aboutPanel")
+                .to(rightHalfRef.current, { yPercent: 0, ease: "none", duration: 1 }, "aboutPanel")
+                .to({}, { duration: 0.4 });
       }
     });
 
@@ -234,11 +240,14 @@ export default function ProjectsShowcase() {
           <div className={styles.windowContainer}>
             {/* Left Pillar */}
             <div className={`${styles.windowHalf} ${styles.leftHalf}`} ref={leftHalfRef}>
-              <img 
-                src="/images/split/tech_direction.webp" 
-                alt="Technical Direction" 
-                className={styles.founderImage} 
-              />
+              <picture style={{ width: '100%', height: '100%', display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+                <source media="(max-width: 768px)" srcSet="/images/split/tech_direction_mobile.webp" />
+                <img 
+                  src="/images/split/tech_direction.webp" 
+                  alt="Technical Direction" 
+                  className={styles.founderImage} 
+                />
+              </picture>
               <div className={styles.overlay}></div>
               <div className={styles.founderInfo}>
                 <p className={styles.founderRole}>The Systems</p>
@@ -248,11 +257,14 @@ export default function ProjectsShowcase() {
 
             {/* Right Pillar */}
             <div className={`${styles.windowHalf} ${styles.rightHalf}`} ref={rightHalfRef}>
-              <img 
-                src="/images/split/client_strategy.webp" 
-                alt="Strategy & Operations" 
-                className={styles.founderImage} 
-              />
+              <picture style={{ width: '100%', height: '100%', display: 'block', position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+                <source media="(max-width: 768px)" srcSet="/images/split/client_strategy_mobile.webp" />
+                <img 
+                  src="/images/split/client_strategy.webp" 
+                  alt="Strategy & Operations" 
+                  className={styles.founderImage} 
+                />
+              </picture>
               <div className={styles.overlay}></div>
               <div className={styles.founderInfo}>
                 <p className={styles.founderRole}>The Craft</p>

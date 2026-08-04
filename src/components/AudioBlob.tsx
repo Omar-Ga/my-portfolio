@@ -5,14 +5,17 @@ import * as THREE from 'three';
 import { useGeminiLive } from '../hooks/useGeminiLive';
 import styles from './AudioBlob.module.css';
 
-const VERTEX_SHADER = `
+// -----------------------------------------------------------------------------
+// Shaders for Main Liquid Blob Layer
+// -----------------------------------------------------------------------------
+const MAIN_VERTEX_SHADER = `
   uniform float u_time;
   uniform float u_audioAmp;
-  varying vec3 vNormal;
-  varying vec3 vPosition;
+  varying vec3 vViewNormal;
+  varying vec3 vViewPosition;
   varying float vDisplacement;
 
-  // Simplex 3D Noise generator
+  // Simplex 3D Noise
   vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
   vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 
@@ -78,46 +81,125 @@ const VERTEX_SHADER = `
   }
 
   void main() {
-    vNormal = normal;
-    vPosition = position;
-
-    float noise = snoise(position * 1.5 + vec3(u_time * 0.4));
-    float displacement = noise * (0.15 + u_audioAmp * 0.45);
+    float time = u_time * 0.45;
+    vec3 noisePos = position * 1.6 + vec3(time);
+    float noise = snoise(noisePos);
+    
+    // Controlled, smooth organic displacement (max ~0.25)
+    float displacement = noise * (0.07 + u_audioAmp * 0.22);
     vDisplacement = displacement;
 
-    vec3 newPosition = position + normal * displacement;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    vec3 newPos = position + normal * displacement;
+    
+    // Compute smooth perturbed normal post-displacement
+    float eps = 0.01;
+    vec3 n1 = position + vec3(eps, 0.0, 0.0);
+    vec3 n2 = position + vec3(0.0, eps, 0.0);
+    float d1 = snoise(n1 * 1.6 + vec3(time)) * (0.07 + u_audioAmp * 0.22);
+    float d2 = snoise(n2 * 1.6 + vec3(time)) * (0.07 + u_audioAmp * 0.22);
+    vec3 tangent1 = normalize(vec3(eps, 0.0, d1 - displacement));
+    vec3 tangent2 = normalize(vec3(0.0, eps, d2 - displacement));
+    vec3 smoothNormal = normalize(cross(tangent1, tangent2));
+
+    vViewNormal = normalize(normalMatrix * smoothNormal);
+    vec4 mvPosition = modelViewMatrix * vec4(newPos, 1.0);
+    vViewPosition = mvPosition.xyz;
+
+    gl_Position = projectionMatrix * mvPosition;
   }
 `;
 
-const FRAGMENT_SHADER = `
+const MAIN_FRAGMENT_SHADER = `
   uniform float u_time;
-  uniform float u_speakingState; // 0 = idle/listening, 1 = AI speaking
-  varying vec3 vNormal;
-  varying vec3 vPosition;
+  uniform float u_speakingState; // 0.0 = listening/idle, 1.0 = AI speaking
+  varying vec3 vViewNormal;
+  varying vec3 vViewPosition;
   varying float vDisplacement;
 
   void main() {
-    vec3 viewDir = normalize(-vPosition);
-    float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 2.5);
+    vec3 viewDir = normalize(-vViewPosition);
+    float fresnel = pow(1.0 - max(dot(viewDir, vViewNormal), 0.0), 2.2);
 
-    // Color definitions
-    vec3 emerald = vec3(0.133, 0.772, 0.368); // #22c55e
-    vec3 teal    = vec3(0.054, 0.647, 0.914); // #0ea5e9
-    vec3 rose    = vec3(0.882, 0.113, 0.282); // #e11d48
-    vec3 darkCore= vec3(0.04, 0.08, 0.06);
+    // Color definitions for Idle/Listening vs AI Speaking
+    vec3 deepCore   = mix(vec3(0.02, 0.1, 0.08), vec3(0.12, 0.02, 0.08), u_speakingState);
+    vec3 emerald    = vec3(0.063, 0.725, 0.506); // #10b981
+    vec3 cyan       = vec3(0.024, 0.714, 0.831); // #06b6d4
+    vec3 rose       = vec3(0.957, 0.247, 0.369); // #f43f5e
+    vec3 violet     = vec3(0.545, 0.361, 0.965); // #8b5cf6
+    vec3 gold       = vec3(0.984, 0.749, 0.141); // #fbbf24
 
-    // Base color gradient based on displacement
-    vec3 baseColor = mix(darkCore, mix(emerald, teal, vDisplacement + 0.2), 0.7);
+    vec3 listeningGrad = mix(emerald, cyan, clamp(vDisplacement * 3.0 + 0.5, 0.0, 1.0));
+    vec3 speakingGrad  = mix(rose, violet, clamp(vDisplacement * 3.0 + 0.5, 0.0, 1.0));
+    speakingGrad       = mix(speakingGrad, gold, clamp(vDisplacement * 4.0, 0.0, 1.0));
 
-    // Speaking accent pulse
-    if (u_speakingState > 0.5) {
-      baseColor = mix(baseColor, rose, 0.4 + vDisplacement * 0.3);
-    }
+    vec3 surfaceColor = mix(listeningGrad, speakingGrad, u_speakingState);
+    vec3 baseColor    = mix(deepCore, surfaceColor, 0.75 + vDisplacement * 0.4);
 
-    vec3 finalColor = mix(baseColor, mix(emerald, rose, u_speakingState), fresnel * 0.85);
+    // Glassy fresnel edge glow
+    vec3 fresnelColor = mix(cyan, rose, u_speakingState);
+    vec3 finalColor   = mix(baseColor, fresnelColor, fresnel * 0.85);
 
-    gl_FragColor = vec4(finalColor, 0.95);
+    gl_FragColor = vec4(finalColor, 0.88 + fresnel * 0.12);
+  }
+`;
+
+// -----------------------------------------------------------------------------
+// Shaders for Outer Aura Shell Layer (Additive translucent halo)
+// -----------------------------------------------------------------------------
+const AURA_VERTEX_SHADER = `
+  uniform float u_time;
+  uniform float u_audioAmp;
+  varying vec3 vViewNormal;
+  varying vec3 vViewPosition;
+
+  void main() {
+    float time = u_time * 0.35;
+    vec3 newPos = position + normal * (sin(position.x * 2.5 + time) * 0.05 + u_audioAmp * 0.14);
+    vViewNormal = normalize(normalMatrix * normal);
+    vec4 mvPosition = modelViewMatrix * vec4(newPos, 1.0);
+    vViewPosition = mvPosition.xyz;
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+const AURA_FRAGMENT_SHADER = `
+  uniform float u_speakingState;
+  varying vec3 vViewNormal;
+  varying vec3 vViewPosition;
+
+  void main() {
+    vec3 viewDir = normalize(-vViewPosition);
+    float fresnel = pow(1.0 - max(dot(viewDir, vViewNormal), 0.0), 3.2);
+
+    vec3 listeningAura = vec3(0.063, 0.725, 0.506); // Emerald
+    vec3 speakingAura  = vec3(0.957, 0.247, 0.369); // Rose
+
+    vec3 auraColor = mix(listeningAura, speakingAura, u_speakingState);
+    gl_FragColor = vec4(auraColor, fresnel * 0.55);
+  }
+`;
+
+// -----------------------------------------------------------------------------
+// Shaders for Inner Glowing Energy Core
+// -----------------------------------------------------------------------------
+const CORE_VERTEX_SHADER = `
+  uniform float u_time;
+  uniform float u_audioAmp;
+
+  void main() {
+    vec3 newPos = position * (1.0 + sin(u_time * 2.5) * 0.04 + u_audioAmp * 0.25);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+  }
+`;
+
+const CORE_FRAGMENT_SHADER = `
+  uniform float u_speakingState;
+
+  void main() {
+    vec3 listeningCore = vec3(0.2, 0.9, 0.65);
+    vec3 speakingCore  = vec3(1.0, 0.45, 0.65);
+    vec3 coreColor     = mix(listeningCore, speakingCore, u_speakingState);
+    gl_FragColor       = vec4(coreColor, 0.9);
   }
 `;
 
@@ -137,7 +219,9 @@ export default function AudioBlob() {
   } = useGeminiLive();
 
   const statusRef = useRef(status);
-  statusRef.current = status;
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -146,63 +230,125 @@ export default function AudioBlob() {
     const parent = canvas.parentElement;
     if (!parent) return;
 
+    // 1. Scene & Camera Setup (Constrained to prevent screen overflow)
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, parent.clientWidth / parent.clientHeight, 0.1, 1000);
-    camera.position.z = 3.8;
+    const camera = new THREE.PerspectiveCamera(45, parent.clientWidth / parent.clientHeight, 0.1, 100);
+    camera.position.z = 4.2;
 
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     renderer.setSize(parent.clientWidth, parent.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    const geometry = new THREE.IcosahedronGeometry(1.1, 32);
-    const uniforms = {
+    // 2. Multilayered Geometries & Uniforms
+    const sharedUniforms = {
       u_time: { value: 0.0 },
       u_audioAmp: { value: 0.0 },
       u_speakingState: { value: 0.0 }
     };
 
-    const material = new THREE.ShaderMaterial({
-      vertexShader: VERTEX_SHADER,
-      fragmentShader: FRAGMENT_SHADER,
-      uniforms,
+    // Layer A: Inner Core (Radius 0.42)
+    const coreGeo = new THREE.IcosahedronGeometry(0.42, 20);
+    const coreMat = new THREE.ShaderMaterial({
+      vertexShader: CORE_VERTEX_SHADER,
+      fragmentShader: CORE_FRAGMENT_SHADER,
+      uniforms: sharedUniforms,
       transparent: true
     });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    scene.add(coreMesh);
 
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    // Layer B: Main Deforming Liquid Blob (Radius 0.72)
+    const mainGeo = new THREE.IcosahedronGeometry(0.72, 36);
+    const mainMat = new THREE.ShaderMaterial({
+      vertexShader: MAIN_VERTEX_SHADER,
+      fragmentShader: MAIN_FRAGMENT_SHADER,
+      uniforms: sharedUniforms,
+      transparent: true
+    });
+    const mainMesh = new THREE.Mesh(mainGeo, mainMat);
+    scene.add(mainMesh);
 
+    // Layer C: Outer Atmospheric Aura Halo (Radius 0.92)
+    const auraGeo = new THREE.IcosahedronGeometry(0.92, 24);
+    const auraMat = new THREE.ShaderMaterial({
+      vertexShader: AURA_VERTEX_SHADER,
+      fragmentShader: AURA_FRAGMENT_SHADER,
+      uniforms: sharedUniforms,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const auraMesh = new THREE.Mesh(auraGeo, auraMat);
+    scene.add(auraMesh);
+
+    // 3. Smooth Lerp State Variables & Render Loop
     let animationId: number;
+    let isIntersecting = true;
     const startTime = performance.now();
+    let currentAmp = 0.05;
+    let currentSpeakingState = 0.0;
+
+    const io = new IntersectionObserver(([entry]) => {
+      isIntersecting = entry.isIntersecting;
+    }, { threshold: 0.05 });
+    io.observe(canvas);
 
     const animate = () => {
-      const elapsedTime = (performance.now() - startTime) * 0.001;
-      uniforms.u_time.value = elapsedTime;
-      uniforms.u_audioAmp.value = getAudioAmp();
-      uniforms.u_speakingState.value = statusRef.current === 'speaking' ? 1.0 : 0.0;
+      if (isIntersecting) {
+        const elapsedTime = (performance.now() - startTime) * 0.001;
+        sharedUniforms.u_time.value = elapsedTime;
 
-      mesh.rotation.y = elapsedTime * 0.15;
-      mesh.rotation.x = Math.sin(elapsedTime * 0.1) * 0.1;
+        // Smooth Lerp on Audio Amplitude & Speaking State
+        const targetAmp = getAudioAmp();
+        currentAmp += (targetAmp - currentAmp) * 0.12;
+        sharedUniforms.u_audioAmp.value = currentAmp;
 
-      renderer.render(scene, camera);
+        const targetSpeaking = statusRef.current === 'speaking' ? 1.0 : 0.0;
+        currentSpeakingState += (targetSpeaking - currentSpeakingState) * 0.08;
+        sharedUniforms.u_speakingState.value = currentSpeakingState;
+
+        // Layered rotations for depth and movement
+        mainMesh.rotation.y = elapsedTime * 0.18;
+        mainMesh.rotation.x = Math.sin(elapsedTime * 0.12) * 0.12;
+
+        auraMesh.rotation.y = -elapsedTime * 0.22;
+        auraMesh.rotation.z = Math.cos(elapsedTime * 0.15) * 0.1;
+
+        coreMesh.rotation.y = elapsedTime * 0.3;
+
+        renderer.render(scene, camera);
+      }
       animationId = requestAnimationFrame(animate);
     };
 
     animate();
 
+    // 4. Responsive ResizeObserver Handling
     const handleResize = () => {
       if (!parent) return;
-      camera.aspect = parent.clientWidth / parent.clientHeight;
+      const width = parent.clientWidth;
+      const height = parent.clientHeight;
+      if (width === 0 || height === 0) return;
+
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(parent.clientWidth, parent.clientHeight);
+      renderer.setSize(width, height);
     };
 
-    window.addEventListener('resize', handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(parent);
 
     return () => {
+      io.disconnect();
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', handleResize);
-      geometry.dispose();
-      material.dispose();
+      resizeObserver.disconnect();
+
+      coreGeo.dispose();
+      coreMat.dispose();
+      mainGeo.dispose();
+      mainMat.dispose();
+      auraGeo.dispose();
+      auraMat.dispose();
       renderer.dispose();
     };
   }, [getAudioAmp]);
@@ -289,4 +435,5 @@ export default function AudioBlob() {
     </div>
   );
 }
+
 

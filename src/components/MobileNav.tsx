@@ -96,6 +96,25 @@ export default function MobileNav() {
           lenis.scrollTo(targetEl, { duration: 1.2 });
         }
       }
+    } else {
+      if (item.name === "ABOUT") {
+        const st = ScrollTrigger.getById("showcase-st");
+        if (st && st.animation) {
+          const progress = (st.animation as gsap.core.Timeline).labels["aboutPanel"] / st.animation.duration();
+          const scrollPos = st.start + (st.end - st.start) * progress;
+          window.scrollTo({ top: scrollPos, behavior: "smooth" });
+        } else {
+          const aboutEl = document.querySelector("#about") as HTMLElement;
+          if (aboutEl) aboutEl.scrollIntoView({ behavior: "smooth" });
+        }
+      } else if (item.target === ".gsap-main-hero") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const targetEl = document.querySelector(item.target) as HTMLElement;
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }
+      }
     }
   };
 
@@ -105,7 +124,11 @@ export default function MobileNav() {
         <div 
           className={styles.logo}
           onClick={() => {
-            if (lenis) lenis.scrollTo(0, { duration: 1 });
+            if (lenis) {
+              lenis.scrollTo(0, { duration: 1 });
+            } else {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
           }}
         >
           OG

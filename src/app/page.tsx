@@ -25,9 +25,47 @@ if (typeof window !== "undefined") {
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isHeroVideoLoaded, setIsHeroVideoLoaded] = useState(false);
   const lenis = useLenis();
+
+  // Auto-pause Hero video when user scrolls off-screen
+  useEffect(() => {
+    const videoEl = heroVideoRef.current;
+    const heroSection = containerRef.current;
+    if (!videoEl || !heroSection) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (videoEl.readyState >= 2) {
+              videoEl.play().catch(() => {});
+            }
+          } else {
+            videoEl.pause();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(heroSection);
+    return () => observer.disconnect();
+  }, []);
+
+  // Smooth fade-in animation for Hero Video upon load
+  useGSAP(() => {
+    if (isHeroVideoLoaded && heroVideoRef.current) {
+      gsap.fromTo(
+        heroVideoRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, ease: "power2.out", force3D: true }
+      );
+    }
+  }, [isHeroVideoLoaded]);
 
   // Control scrolling with Lenis during the cinematic boot phase and handle ScrollTrigger refresh
   useEffect(() => {
@@ -37,13 +75,23 @@ export default function Home() {
       } else {
         lenis.start();
       }
+    } else {
+      if (!isLoaded) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
     }
 
     if (isLoaded) {
-      // Fix 1: Force ScrollTrigger refresh once fonts & assets finish loading
-      // (prevents jumbled layout on network latency / Cloudflare tunnel)
+      // Force ScrollTrigger refresh once fonts & assets finish loading
+      let resizeTimer: NodeJS.Timeout;
       const handleRefresh = () => {
         ScrollTrigger.refresh();
+      };
+      const debouncedRefresh = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(handleRefresh, 200);
       };
 
       if (typeof document !== 'undefined' && 'fonts' in document) {
@@ -51,15 +99,16 @@ export default function Home() {
       }
 
       window.addEventListener('load', handleRefresh);
-      window.addEventListener('resize', handleRefresh);
+      window.addEventListener('resize', debouncedRefresh);
 
       // Delayed refresh as fallback for dynamic media
       const timer = setTimeout(handleRefresh, 1000);
 
       return () => {
         window.removeEventListener('load', handleRefresh);
-        window.removeEventListener('resize', handleRefresh);
+        window.removeEventListener('resize', debouncedRefresh);
         clearTimeout(timer);
+        clearTimeout(resizeTimer);
       };
     }
   }, [lenis, isLoaded]);
@@ -81,6 +130,7 @@ export default function Home() {
       gsap.to(".gsap-sidebar", { color: "#fff", borderColor: "rgba(255,255,255,0.2)", duration: 1.5 });
       
       if (lenis) lenis.stop();
+      document.body.style.overflow = 'hidden';
     } else {
       // Restore hero content
       gsap.to(".gsap-main-elem:not(.gsap-sidebar)", { opacity: 1, y: 0, duration: 1.5, ease: "power3.out", delay: 0.5 });
@@ -89,6 +139,7 @@ export default function Home() {
       gsap.to(".gsap-sidebar", { color: "#000", borderColor: "var(--primary)", duration: 1.5 });
       
       if (lenis && isLoaded) lenis.start();
+      if (isLoaded) document.body.style.overflow = '';
     }
   }, [isContactOpen, lenis, isLoaded]);
 
@@ -96,46 +147,61 @@ export default function Home() {
   useGSAP((context, contextSafe) => {
     if (!isLoaded) return;
 
-    // Video parallax
-    const videoBg = document.querySelector(".gsap-video-bg") as HTMLElement | null;
-    const videoXTo = videoBg ? gsap.quickTo(videoBg, "x", { duration: 1.2, ease: "power2" }) : null;
-    const videoYTo = videoBg ? gsap.quickTo(videoBg, "y", { duration: 1.2, ease: "power2" }) : null;
+    const mm = gsap.matchMedia();
 
-    const onGlobalMouseMove = contextSafe!((e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { innerWidth, innerHeight } = window;
-      const globalNx = (clientX / innerWidth) * 2 - 1;
-      const globalNy = (clientY / innerHeight) * 2 - 1;
+    // Desktop Video Parallax (only enabled when fine pointer/hover present)
+    mm.add("(hover: hover)", () => {
+      const videoBg = document.querySelector(".gsap-video-bg") as HTMLElement | null;
+      const videoXTo = videoBg ? gsap.quickTo(videoBg, "x", { duration: 1.2, ease: "power2" }) : null;
+      const videoYTo = videoBg ? gsap.quickTo(videoBg, "y", { duration: 1.2, ease: "power2" }) : null;
 
-      if (videoXTo && videoYTo) {
-        videoXTo(-globalNx * 30);
-        videoYTo(-globalNy * 30);
-      }
-    });
+      const onGlobalMouseMove = contextSafe!((e: MouseEvent) => {
+        const { clientX, clientY } = e;
+        const { innerWidth, innerHeight } = window;
+        const globalNx = (clientX / innerWidth) * 2 - 1;
+        const globalNy = (clientY / innerHeight) * 2 - 1;
 
-    if (typeof window !== "undefined") {
+        if (videoXTo && videoYTo) {
+          videoXTo(-globalNx * 30);
+          videoYTo(-globalNy * 30);
+        }
+      });
+
       window.addEventListener("mousemove", onGlobalMouseMove as EventListener);
-    }
-
-    // Global scroll progress bar
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-    gsap.to(".gsap-scroll-progress", {
-      [isMobile ? "scaleX" : "scaleY"]: 1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: wrapperRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 0.1,
-        invalidateOnRefresh: true
-      }
+      return () => window.removeEventListener("mousemove", onGlobalMouseMove as EventListener);
     });
 
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("mousemove", onGlobalMouseMove as EventListener);
-      }
-    };
+    // Global scroll progress bar - Desktop (scaleY)
+    mm.add("(min-width: 769px)", () => {
+      gsap.to(".gsap-scroll-progress", {
+        scaleY: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: wrapperRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.1,
+          invalidateOnRefresh: true
+        }
+      });
+    });
+
+    // Global scroll progress bar - Mobile (scaleX)
+    mm.add("(max-width: 768px)", () => {
+      gsap.to(".gsap-scroll-progress", {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: wrapperRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.1,
+          invalidateOnRefresh: true
+        }
+      });
+    });
+
+    return () => mm.revert();
   }, { scope: wrapperRef, dependencies: [isLoaded] });
 
   return (
@@ -147,11 +213,18 @@ export default function Home() {
           
           {/* Light Video Background */}
           <video 
+            ref={heroVideoRef}
             className={`${styles.videoBackgroundLight} gsap-video-light gsap-video-bg`}
-            autoPlay 
             loop 
             muted 
             playsInline
+            style={{ opacity: isHeroVideoLoaded ? 1 : 0 }}
+            onLoadedData={() => {
+              setIsHeroVideoLoaded(true);
+              if (heroVideoRef.current) {
+                heroVideoRef.current.play().catch(() => {});
+              }
+            }}
           >
             <source src="/light_web_mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
             <source src="/light_web.mp4" type="video/mp4" />

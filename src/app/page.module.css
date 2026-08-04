@@ -24,7 +24,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  will-change: transform, opacity;
 }
 
 .videoBackgroundLight {
@@ -85,7 +84,6 @@
   text-orientation: mixed;
   transform: rotate(180deg) translateZ(0);
   backface-visibility: hidden;
-  will-change: transform;
 }
 
 .navTextBase {
@@ -99,7 +97,6 @@
   left: 0;
   color: var(--primary, #fb923c);
   clip-path: inset(0 100% 0 0);
-  will-change: clip-path;
   pointer-events: none;
   display: block;
 }
@@ -110,7 +107,6 @@
   left: 0;
   color: var(--primary, #fb923c);
   clip-path: polygon(0% -60%, 100% -40%, 100% -20%, 0% -40%);
-  will-change: clip-path;
   pointer-events: none;
   display: block;
 }
@@ -127,7 +123,6 @@
 .borderTop, .borderRight, .borderBottom, .borderLeft {
   position: absolute;
   background-color: var(--primary, #fb923c);
-  will-change: transform;
 }
 
 .borderTop {
@@ -291,7 +286,6 @@
   color: #000;
   pointer-events: none;
   overflow: hidden;
-  will-change: transform;
   visibility: hidden;
   opacity: 0;
 }
@@ -357,7 +351,6 @@
   color: #fff; /* White text for dark overlay */
   opacity: 0;
   text-align: center;
-  will-change: transform, opacity;
 }
 
 .mainHeroContainer {
@@ -426,7 +419,6 @@
   position: absolute;
   font-family: var(--font-serif);
   color: #fff;
-  will-change: transform, opacity, filter, clip-path;
   opacity: 0;
   pointer-events: none;
 }
@@ -514,7 +506,6 @@
   background-color: #f97316; /* Orange to match nav accent */
   transform-origin: top;
   transform: scaleY(0);
-  will-change: transform;
 }
 
 @media (max-width: 768px) {
