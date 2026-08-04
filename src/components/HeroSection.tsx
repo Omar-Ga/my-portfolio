@@ -124,7 +124,7 @@ export default function HeroSection() {
         end: "bottom bottom",
         scrub: 1,
         invalidateOnRefresh: true,
-        refreshPriority: 10,
+        refreshPriority: 12,
       }
     });
 

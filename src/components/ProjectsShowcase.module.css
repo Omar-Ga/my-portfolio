@@ -7,6 +7,7 @@
   border-radius: 40px 40px 0 0;
   box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.5);
   z-index: 10;
+  isolation: isolate;
 }
 
 .horizontalTrack {
@@ -142,6 +143,7 @@
   overflow: hidden;
   /* Needs to be above StorySection (z-index:10) when GSAP pins it as position:fixed */
   z-index: 20;
+  isolation: isolate;
 }
 
 .teaserTitle {

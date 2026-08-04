@@ -163,9 +163,10 @@ export default function ProjectsShowcase() {
           id: "showcase-st",
           trigger: sectionRef.current,
           pin: true,
+          anticipatePin: 1,
           scrub: 1,
           invalidateOnRefresh: true,
-          refreshPriority: 5,
+          refreshPriority: 10,
           end: () => "+=" + (getInitialHoldDist() + getHorizontalDist() + getVerticalDist() + getHoldDist())
         }
       });
@@ -206,11 +207,13 @@ export default function ProjectsShowcase() {
             id: "showcase-st",
             trigger: teaserEl,
             pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
             start: "top top",
             end: "+=150%",
             scrub: 1,
             invalidateOnRefresh: true,
-            refreshPriority: 5
+            refreshPriority: 10
           }
         });
 

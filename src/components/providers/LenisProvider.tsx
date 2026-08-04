@@ -28,7 +28,17 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
   }, []);
 
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) {
+      ScrollTrigger.refresh();
+      return;
+    }
+
+    gsap.ticker.lagSmoothing(0);
+
+    const lenis = lenisRef.current?.lenis;
+    if (lenis) {
+      lenis.on("scroll", ScrollTrigger.update);
+    }
 
     function update(time: number) {
       lenisRef.current?.lenis?.raf(time * 1000);
@@ -38,6 +48,9 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     ScrollTrigger.refresh();
 
     return () => {
+      if (lenis) {
+        lenis.off("scroll", ScrollTrigger.update);
+      }
       gsap.ticker.remove(update);
     };
   }, [isMobile]);

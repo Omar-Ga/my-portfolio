@@ -534,7 +534,8 @@
   background-color: #000;
   color: #000;
   position: relative;
-  z-index: 10;
+  z-index: 20;
+  isolation: isolate;
   overflow: hidden;
 }
 

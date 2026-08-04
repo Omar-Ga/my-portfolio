@@ -95,10 +95,11 @@ export default function CapabilitiesSection() {
       scrollTrigger: {
         trigger: sectionRef.current,
         pin: true,
+        anticipatePin: 1,
         start: "top top",
         end: `+=${SERVICES.length * 200}%`,
         scrub: 0.7,
-        refreshPriority: 1,
+        refreshPriority: 6,
         invalidateOnRefresh: true,
         snap: {
           snapTo: snapPoints,

@@ -74,10 +74,11 @@ export default function StorySection() {
       scrollTrigger: {
         trigger: containerRef.current,
         pin: true,
+        anticipatePin: 1,
         start: "top top",
         end: "+=150%",
         scrub: 0.5,
-        refreshPriority: 3,
+        refreshPriority: 8,
         invalidateOnRefresh: true,
       }
     });
